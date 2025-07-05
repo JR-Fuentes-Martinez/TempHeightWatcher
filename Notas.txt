@@ -1,0 +1,139 @@
+[('tsoil10_40cm', '** 0.1-0.4 m below ground soil temperature validation to deprecate [k] ', 114), ('tsoil40_100cm', '** 0.4-1 m below ground soil temperature validation to deprecate [k] ', 114), ('tsoil100_200cm', '** 1-2 m below ground soil temperature validation to deprecate [k] ', 114), ('tsoil0_10cm', '** 0-0.1 m below ground soil temperature validation to deprecate [k] ', 118), ('dpt2m', '** 2 m above ground dew point temperature [k] ', 120), ('potsig995', '** 0.995 sigma level potential temperature [k] ', 124), ('icetmpsfc', '** surface ice temperature [k] ', 133), ('tmax2m', '** 2 m above ground maximum temperature [k] ', 133), ('tmin2m', '** 2 m above ground minimum temperature [k] ', 133), ('tmp_1829m', '** 1829 m above mean sea level temperature [k] ', 133), ('tmp_2743m', '** 2743 m above mean sea level temperature [k] ', 133), ('tmp_3658m', '** 3658 m above mean sea level temperature [k] ', 133), ('tmpsig995', '** 0.995 sigma level temperature [k] ', 133), ('tmp30_0mb', '** 30-0 mb above ground temperature [k] ', 133), ('tmplclt', '** low cloud top level temperature [k] ', 143), ('tmpmclt', '** middle cloud top level temperature [k] ', 143), ('tmphclt', '** high cloud top level temperature [k] ', 143), ('tmp100m', '** 100 m above ground temperature [k] ', 143), ('tmpneg2pv', '** pv=-2e-06 (km^2/kg/s) surface temperature [k] ', 144), ('tmpsfc', '** surface temperature [k] ', 150), ('tmp80m', '** 80 m above ground temperature [k] ', 150), ('tmp2pv', '** pv=2e-06 (km^2/kg/s) surface temperature [k] ', 150), ('tmpmwl', '** max wind temperature [k] ', 150), ('tmptrop', '** tropopause temperature [k] ', 157), ('tmp2m', '** 2 m above ground temperature [k] ', 160), ('tmpprs', '** (1000 975 950 925 900.. 10 7 4 2 1) temperature [k] ', 167)]
+
+('tmpprs', '** (1000 975 950 925 900.. 10 7 4 2 1) temperature [k] ', 167)
+('rhprs', '** (1000 975 950 925 900.. 10 7 4 2 1) relative humidity [%] ', 120)
+('spfhprs', '** (1000 975 950 925 900.. 10 7 4 2 1) specific humidity [kg/kg] ', 114)
+[('lhtflsfc', '** surface latent heat net flux [w/m^2] ', 133)]
+[('shtflsfc', '** surface sensible heat net flux [w/m^2] ', 129)]
+
+
+array([[[[272.44238]],  1000 0
+
+        [[270.59933]],  975
+
+        [[269.51935]],  950
+
+        [[268.5994 ]],  925
+
+        [[267.80936]],  900
+
+        [[267.35934]],  875
+
+        [[266.09933]],  850 6
+
+        [[264.3594 ]],  825
+
+        [[262.6494 ]],  800
+
+        [[260.7524 ]],  775
+
+        [[257.67032]],  750
+
+        [[254.01768]],  700 11
+
+        [[249.4193 ]],  675
+
+        [[244.16997]],  650
+
+        [[238.96997]],  625
+
+        [[232.36116]],  600
+
+        [[226.01068]],  575
+
+        [[223.5641 ]],  550
+
+        [[230.15074]],  525
+
+        [[230.11015]],  500 19
+
+        [[229.12224]],  475
+
+        [[231.8756 ]],  450
+
+        [[231.5199 ]],  425
+
+        [[230.4452 ]],  400
+
+        [[230.45183]],  375
+
+        [[234.77666]],  350
+
+        [[237.17142]],  325
+
+        [[244.10197]],  300
+
+        [[247.25972]],  275
+
+        [[256.86948]],  250 29
+
+        [[270.54163]],  225
+
+        [[277.28067]],  200
+
+        [[281.91013]],  175
+
+        [[276.81088]],  150
+
+        [[264.2888 ]],  125
+
+        [[244.55807]],  100 35
+
+        [[221.21925]],  10 36
+
+        [[203.11955]],  7
+
+        [[191.69255]],  4 38
+
+        [[187.59842]],  2
+
+        [[169.04845]]]] 1)
+
+
+https://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_0p25_1hr.pl?dir=%2Fgfs.20250623%2F06%2Fatmos&file=gfs.t06z.pgrb2.0p25.anl&var_RH=on&var_SPFH=on&var_TMP=on&lev_1000_mb=on&lev_850_mb=on&lev_700_mb=on&lev_500_mb=on&lev_250_mb=on&lev_100_mb=on&lev_10_mb=on&lev_2_mb=on&subregion=&toplat=90&leftlon=0&rightlon=0&bottomlat=90
+
+1.0 2.0 4.0 7.0 10.0 20.0 40.0 70.0 100.0 200.0 300.0 500.0 700.0 1000.0 1500.0 2000.0 3000.0 4000.0 5000.0 7000.0 10000.0 15000.0 20000.0 25000.0 30000.0 35000.0 40000.0 45000.0 50000.0 55000.0 60000.0 65000.0 70000.0 75000.0 80000.0 85000.0 90000.0 92500.0 95000.0 97500.0 100000.0 Pa
+
+https://www.ncei.noaa.gov/thredds/ncss/model-gfs-g3-anl-files/202506/20250614/gfs_3_20250614_1800_006.grb2?var=Absolute_vorticity_isobaric&var=Ozone_Mixing_Ratio_isobaric&var=Relative_humidity_isobaric&var=Specific_humidity_isobaric&var=Temperature_isobaric&disableLLSubset=on&disableProjSubset=on&horizStride=1&time_start=2025-06-15T00:A00:00Z&time_end=2025-06-15T00:00:00Z&timeStride=1&vertCoord=80000.0&req=station&latitude=90.0&longitude=0.0
+
+time_start=2007-03-29T12:00:00Z&time_end=2007-03-29T13:00:00Z (between 12 and 1 pm Greenwich time)
+time_start=present&time_duration=P3D (get 3 day forecast starting from the present)
+time_end=present&time_duration=PT3H (get last 3 hours)
+time=2007-03-29T12:00:00Z
+time=present
+time=all
+
+https://www.ncei.noaa.gov/thredds/ncss/model-gfs-g3-anl-files/202506/20250610/gfs_3_20250610_0600_006.grb2?var=Ozone_Mixing_Ratio_isobaric&var=Relative_humidity_isobaric&var=Specific_humidity_isobaric&var=Temperature_isobaric&north=90&west=0.0000&east=0&south=90&disableProjSubset=on&horizStride=1&time=2025-06-10T12%3A00%3A00Z&vertCoord=100000&addLatLon=true
+
+curl -r 111420418-112020313 https://data.ecmwf.int/forecasts//20250701/06z/ifs/0p25/scda/20250701060000-24h-scda-fc.grib2 --output hhh.grib2
+
+
+
+import cdsapi
+
+dataset = "derived-era5-pressure-levels-daily-statistics"
+request = {
+    "product_type": "reanalysis",
+    "variable": [
+        "ozone_mass_mixing_ratio",
+        "relative_humidity",
+        "specific_humidity",
+        "temperature"
+    ],
+    "year": "@",    #2025
+    "month": @,     #["06"]
+    "day": @,       #["12"]
+    "pressure_level": [
+        "2", "10", "20",
+        "100", "250", "500",
+        "700", "850", "1000"
+    ],
+    "daily_statistic": "daily_mean",
+    "time_zone": "utc+00:00",
+    "frequency": "6_hourly",
+    "area": [90, 0, 89.75, 0.25]
+}
+
+client = cdsapi.Client()
+client.retrieve(dataset, request).download()
+
