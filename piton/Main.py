@@ -4,9 +4,9 @@ dataset = "derived-era5-pressure-levels-daily-statistics"
 request = {
     "product_type": "reanalysis",
     "variable": [
-        "ozone_mass_mixing_ratio",
-        "relative_humidity",
-        "specific_humidity",
+        #"ozone_mass_mixing_ratio",
+        #"relative_humidity",
+        #"specific_humidity",
         "temperature"
     ],
     "year": "@",    #2025
@@ -20,9 +20,9 @@ request = {
     "daily_statistic": "daily_mean",
     "time_zone": "utc+00:00",
     "frequency": "6_hourly",
-    "area": [@, 0.0, @, 0.25]
+    "area": @,
+    "data_format": "netcdf",
+    "download_format": "unarchived"
 }
-target = '@'
-
 client = cdsapi.Client()
 client.retrieve(dataset, request).download()

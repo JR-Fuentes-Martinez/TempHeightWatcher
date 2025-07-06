@@ -133,7 +133,9 @@ request = {
     "frequency": "6_hourly",
     "area": [90, 0, 89.75, 0.25]
 }
+target = '@'
 
 client = cdsapi.Client()
-client.retrieve(dataset, request).download()
+client.retrieve(dataset, request, target).download()
 
+float o3(valid_time, pressure_level, latitude, longitude) ;

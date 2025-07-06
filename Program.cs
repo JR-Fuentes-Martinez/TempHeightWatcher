@@ -1,31 +1,28 @@
 ﻿using System;
 using System.Globalization;
-using Microsoft.Data.Analysis;
 using System.Diagnostics;
 using ScottPlot;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Research.Science.Data;
 using Microsoft.Research.Science.Data.Imperative;
-using Microsoft.Research.Science.Data.NetCDF4;
-using Microsoft.Research.Science.Data.CSV;
 using Microsoft.Data.Sqlite;
-using System.ComponentModel;
-
+using ScottPlot.TickGenerators.TimeUnits;
+using System.Text;
+using Microsoft.Research.Science.Data.Utilities;
 
 namespace TempHeightWatcher;
 
 class Program
 {
-    private static DateTime FInicio = DateTime.MinValue;
+    private static DateOnly FInicio = DateOnly.MinValue;
     private static DateOnly FFinal = DateOnly.MinValue;
     private static int SDias = 0;
     private static readonly CultureInfo Usa = new("en-US");
     private static readonly string Directorio = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/Documentos/CDSData";
     private static readonly string ConString = $"Data Source={Directorio}/CdsData.sqlite;";
     private static readonly SqliteConnection DbConn = new(ConString);
-    private static readonly float[] Alturas = [100000.0f, 85000.0f, 70000.0f, 50000.0f, 25000.0f, 10000.0f, 7000.0f, 1000.0f];
-    private static double HFromFich = 0.0;
-    private static int NumAños = 4;
+    private static readonly float[] Alturas = [1000.0f, 850.0f, 700.0f, 500.0f, 250.0f, 100.0f, 70.0f, 10.0f];
+    private const int NumAños = 4;
 
     static void Main(string[] args)
     {
@@ -38,7 +35,7 @@ class Program
 
         if (args.Length > 1)
         {
-            if (!DateTime.TryParse(args[0], out FInicio))
+            if (!DateOnly.TryParse(args[0], out FInicio))
             {
                 NError = 1;
             }
@@ -67,7 +64,7 @@ class Program
 
         if (NError >= 0)
         {
-            Console.WriteLine("Debe introducir una fecha en formato \"yyyy-MM-dd 00:00\", un entero indicando el número de días "
+            Console.WriteLine("Debe introducir una fecha en formato \"yyyy-MM-dd\", un entero positivo indicando el número de días "
                 + "y una cadena incluyendo [d]->Descargar, [g]->Hacer gráfico, o ambas.");
             return;
         }
@@ -75,8 +72,7 @@ class Program
         try
         {
             bool Adelante = true;
-            FFinal = DateOnly.FromDateTime(FInicio.AddDays(SDias));
-            DateOnly FBucle = DateOnly.FromDateTime(FInicio);
+            FFinal = FInicio.AddDays(SDias);
             List<DateOnly> Fechas = [];
 
             DbConn.Open();
@@ -95,9 +91,64 @@ class Program
 
             if (DTarea)
             {
-                if (!DescargaDatos(config, Fechas, FInicio, SDias, NumAños).IsCompletedSuccessfully)
+                for (int i = 0; i < 2; i++)
                 {
-                    Adelante = false;
+                    DateOnly FBucle = FInicio;
+                    var StrMeses = string.Empty;
+                    var StrAños = string.Empty;
+                    var StrDias = string.Empty;
+                    var Area = string.Empty;
+                    StringBuilder StbDias = new(1, 1024);
+
+                    if (i == 0) Area = "[90, 0, 89.95, 0.05]";
+                    else Area = "[-90, 0, -89.95, 0.05]";
+
+                    while (FBucle <= FFinal)
+                    {
+                        StrAños = $"{FBucle.Year:0000}";
+                        var ElAño = FBucle.Year;
+
+                        while (FBucle.Year == ElAño)
+                        {
+                            var ElMes = FBucle.Month;
+                            StbDias = StbDias.Append('[');
+                            StrMeses = $"[\"{FBucle.Month:00}\"]";
+
+                            while (FBucle.Month == ElMes)
+                            {
+                                if (!Fechas.Contains(FBucle))
+                                {
+                                    StbDias = StbDias.Append($"\"{FBucle.Day:00}\",");                                    
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"La fecha {FBucle.ToShortDateString()} ya está en la Db.");
+                                }
+
+                                FBucle = FBucle.AddDays(1);
+                                if (FBucle > FFinal) break;
+                            }
+
+                            if (StbDias.Length > 1)
+                            {
+                                StbDias.Remove(StbDias.Length - 1, 1);
+                                StbDias = StbDias.Append(']');
+                                StrDias = StbDias.ToString().Trim();
+
+                                if (!DescargaDatos(config, StrDias, StrMeses, StrAños, Area).IsCompletedSuccessfully)
+                                {
+                                    Adelante = false;
+                                    break;
+                                }
+                            }
+
+                            if (FBucle > FFinal) break;
+
+                            StbDias = StbDias.Clear();
+                        }
+                        if (!Adelante) break;
+                    }
+                    if (!Adelante) break;
                 }
             }
 
@@ -123,154 +174,71 @@ class Program
             Console.WriteLine(e.Message);
             return;
         }
+        finally
+        {
+            if (DbConn.State != System.Data.ConnectionState.Closed) DbConn.Close();
+            DbConn.Dispose();
+        }
     }
 
-    static Task DescargaDatos(IConfigurationRoot config, List<DateOnly> Fechas, DateTime Fecha, int Dias, int NumAños)
+    static Task DescargaDatos(IConfigurationRoot config, string Dias, string Meses, string Años, string Area)
     {
-        var DInicio = DateOnly.FromDateTime(Fecha);
         Thread.CurrentThread.CurrentCulture = Usa;
-        float Lat, Long = 0.0f;
-        string Meses = string.Empty;
-        string SDias = string.Empty;
-        int AntMes, AntAño;
-
-        AntAño = DInicio.Year;
-        AntMes = DInicio.Month;
-
-        for (int i = 0; i < Dias; i++)
-        {
-            FormatFecha Ff = new(DInicio);
-            if (DInicio.Year == AntAño)
-            {
-                if (DInicio.Month == AntMes)
-                {
-                    
-                }
-            }
-                
-
-
-            DInicio.AddDays(1);
-        }
-
-
-        using var SScript = File.OpenText("/piton/Main.py");
-        string SGScript = SScript.ReadToEnd();
-        SScript.Close();
-
-        Lat = 90.0f;
         int Iterador = 0;
-
-        while (SGScript.Contains('@'))
-        {
-            FormatFecha LaFecha = new(Fecha);
-
-            var Indice = SGScript.IndexOf('@');
-
-            if (Indice > -1)
-            {
-                SGScript = SGScript.Remove(Indice, 1);
-
-                if (Iterador == 0) SGScript = SGScript.Insert(Indice, Año);
-                if (Iterador == 1) SGScript = SGScript.Insert(Indice, $"['{Mes}]'");
-                if (Iterador == 2)
-                {
-
-                }
-                Iterador++;
-            }
-
-        }
-
-        var Cadena = $@"https://www.ncei.noaa.gov/thredds/ncss/model-gfs-g3-anl-files/{Año}{Mes}/{Año}{Mes}{Dia}/gfs_3_{Año}{Mes}{Dia}_0600_006.grb2?var=Ozone_Mixing_Ratio_isobaric&var=Relative_humidity_isobaric&var=Specific_humidity_isobaric&var=Temperature_isobaric&temporal=all&latitude={Lat}&longitude={Long}&accept=CSV";
-        var UserAgent = $"TempHeightWatcher-wget-net8.0;1.0-alpha;{config["GUID"]}";
+        string RutaT = Path.Combine(Directorio, "tmp/script.py");
+        string RutaD = Path.Combine(Directorio, "tmp");
 
         try
         {
+            using var SScript = File.OpenText("piton/Main.py");
+            string SGScript = SScript.ReadToEnd();
+            SScript.Close();
+
+            while (SGScript.Contains('@'))
+            {
+                var Indice = SGScript.IndexOf('@');
+
+                if (Indice > -1)
+                {
+                    SGScript = SGScript.Remove(Indice, 1);
+
+                    if (Iterador == 0) SGScript = SGScript.Insert(Indice, Años);
+                    else if (Iterador == 1) SGScript = SGScript.Insert(Indice, Meses);
+                    else if (Iterador == 2) SGScript = SGScript.Insert(Indice, Dias);
+                    else if (Iterador == 3) SGScript = SGScript.Insert(Indice, Area);
+                    else if (Iterador == 4) SGScript = SGScript.Insert(Indice, RutaD);
+
+                    Iterador++;
+                }
+            }
+            File.AppendAllText(RutaT, SGScript);
+
             using Process PPython = new();
             PPython.StartInfo.FileName = "python3";
-            PPython.StartInfo.Arguments = $" -O {Directorio}/temp/temp1fff.tmp --user-agent={UserAgent} {Cadena}";
+            PPython.StartInfo.Arguments = $"{RutaT}";
+            PPython.StartInfo.WorkingDirectory = RutaD;
             PPython.Start();
             PPython.WaitForExit();
             if (PPython.ExitCode != 0) throw new Exception("Error en el programa python.");
-        }
-        catch (System.Exception e)
-        {
-            Console.WriteLine(e.Message);
-            return Task.FromException(e);
-        }
-        DataFrame Data1 = DataFrame.LoadCsv($"{Directorio}/temp/temp1fff.tmp", cultureInfo: Usa);
-        if (File.Exists($"{Directorio}/temp/temp1fff.tmp")) File.Delete($"{Directorio}/temp/temp1fff.tmp");
-
-        Thread.Sleep(2000);
-
-        Lat = -90.0f;
-        //Cadena = $@"https://www.ncei.noaa.gov/thredds/ncss/model-gfs-g3-anl-files/{Año}{Mes}/{Año}{Mes}{Dia}/gfs_3_{Año}{Mes}{Dia}_0600_006.grb2?var=Ozone_Mixing_Ratio_isobaric&var=Relative_humidity_isobaric&var=Specific_humidity_isobaric&var=Temperature_isobaric&disableLLSubset=on&disableProjSubset=on&horizStride=1&temporal=all&timeStride=1&req=station&latitude={Lat}&longitude={Long}&accept=CSV";
-        Cadena = $@"https://www.ncei.noaa.gov/thredds/ncss/model-gfs-g3-anl-files/{Año}{Mes}/{Año}{Mes}{Dia}/gfs_3_{Año}{Mes}{Dia}_0600_006.grb2?var=Ozone_Mixing_Ratio_isobaric&var=Relative_humidity_isobaric&var=Specific_humidity_isobaric&var=Temperature_isobaric&temporal=all&latitude={Lat}&longitude={Long}&accept=CSV";
-
-        try
-        {
-            using Process WGet = new();
-            WGet.StartInfo.FileName = "wget";
-            WGet.StartInfo.Arguments = $" -O {Directorio}/temp/temp1fff.tmp --user-agent={UserAgent} {Cadena}";
-            WGet.Start();
-            WGet.WaitForExit();
         }
         catch (Exception e)
         {
             Console.WriteLine(e.Message);
             return Task.FromException(e);
         }
-        DataFrame Data2 = DataFrame.LoadCsv($"{Directorio}/temp/temp1fff.tmp", cultureInfo: Usa);
-        if (File.Exists($"{Directorio}/temp/temp1fff.tmp")) File.Delete($"{Directorio}/temp/temp1fff.tmp");
 
-        Console.WriteLine($"Descargados archivos de fecha {FBucle.ToShortDateString()}");
+        DataSet CDSData = DataSet.Open($"msds:nc?file={RutaD}&openMode=readOnly");
+        var Temps = CDSData.GetData<double[,,,]>("t");
 
-        for (int i = 0; i < Data1.Rows.Count; i++)
-        {
-            for (int j = 0; j < Alturas.Length; j++)
-            {
-                if ((float)Data1[i, 3] == Alturas[j])
-                {
-                    Data = Data.Append(Data1.Rows[i], inPlace: true);
-                }
-            }
-        }
-        for (int i = 0; i < Data2.Rows.Count; i++)
-        {
-            for (int j = 0; j < Alturas.Length; j++)
-            {
-                if ((float)Data2[i, 3] == Alturas[j])
-                {
-                    Data = Data.Append(Data2.Rows[i], inPlace: true);
-                }
-            }
-        }
-        Thread.Sleep(2000);
+        if (File.Exists(RutaT)) File.Delete(RutaT);
+        if (File.Exists($"{RutaD}/*.zip")) File.Delete($"{RutaD}/*.zip");
 
-        FBucle = FBucle.AddYears(-1);
-
-
-        if (!PasaDeLargo)
-        {
-            Data = Data.OrderByDescending("time");
-
-            for (int i = 0; i < Data.Rows.Count; i++)
-            {
-                var Ffecha = (DateTime)Data[i, 0];
-                Data[i, 8] = (float)Ffecha.Year;
-            }
-            if (File.Exists($"{ConString}.old")) File.Delete($"{ConString}.old");
-            File.Copy(ConString, $"{ConString}.old");
-            DataFrame.SaveCsv(Data, ConString, cultureInfo: Usa);
-        }
-        Console.WriteLine($"{Data.Rows.Count} en la Db.");
-        */
-            return Task.CompletedTask;
+        return Task.CompletedTask;
     }
 
     static Task HazGraficos(DateTime Fecha, int Dias)
     {
+        /*
         DataFrame Data;
         DateTime FFinal = DateTime.MinValue, PFecha;
 
@@ -385,24 +353,11 @@ class Program
                 FInData = Data.Columns["year"].ElementwiseEquals(ElAño);
             }
         }
+        */
         return Task.CompletedTask;
     }
 
-    public class FormatFecha
-    {
-        private readonly DateOnly _Fecha = DateOnly.MinValue;
-
-        public FormatFecha(DateOnly Fecha)
-        {
-            _Fecha = Fecha;
-            FAño = _Fecha.Year.ToString("0000");
-            FMes = Fecha.Month.ToString("00");
-            FDia = Fecha.Day.ToString("00");
-        }
-        public string FAño { get; private set; }
-        public string FMes { get; private set; }
-        public string FDia { get; private set; }
-    }
+    
 }
 
 
