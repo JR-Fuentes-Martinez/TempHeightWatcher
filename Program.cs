@@ -8,7 +8,8 @@ using Microsoft.Research.Science.Data.Imperative;
 using Microsoft.Data.Sqlite;
 using ScottPlot.TickGenerators.TimeUnits;
 using System.Text;
-using Microsoft.Research.Science.Data.Utilities;
+using System.Text.Json;
+using System.IO.Compression;
 
 namespace TempHeightWatcher;
 
@@ -21,8 +22,7 @@ class Program
     private static readonly string Directorio = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/Documentos/CDSData";
     private static readonly string ConString = $"Data Source={Directorio}/CdsData.sqlite;";
     private static readonly SqliteConnection DbConn = new(ConString);
-    private static readonly float[] Alturas = [1000.0f, 850.0f, 700.0f, 500.0f, 250.0f, 100.0f, 70.0f, 10.0f];
-    private const int NumAños = 4;
+    private static readonly float[] Alturas = [1000.0f, 850.0f, 700.0f, 500.0f, 250.0f, 100.0f, 70.0f, 10.0f, 2.0f];
 
     static void Main(string[] args)
     {
@@ -58,7 +58,7 @@ class Program
                     NError = -1;
                 }
             }
-            else NError = 3;
+            else if (args.Length != 3) NError = 3;
         }
         else NError = 0;
 
@@ -77,7 +77,7 @@ class Program
 
             DbConn.Open();
             using var DbComando = DbConn.CreateCommand();
-            DbComando.CommandText = $"SELECT Fecha FROM CdsMain ORDER BY Fecha; ";
+            DbComando.CommandText = $"SELECT DISTINCT Fecha FROM CdsMain ORDER BY Fecha; ";
             using var ResDb = DbComando.ExecuteReader();
 
             if (ResDb.HasRows)
@@ -91,6 +91,10 @@ class Program
 
             if (DTarea)
             {
+                using var SScript = File.OpenText("piton/Main.py");
+                string SGScript = SScript.ReadToEnd();
+                SScript.Close();
+
                 for (int i = 0; i < 2; i++)
                 {
                     DateOnly FBucle = FInicio;
@@ -98,10 +102,19 @@ class Program
                     var StrAños = string.Empty;
                     var StrDias = string.Empty;
                     var Area = string.Empty;
+                    var Latitud = 0;
                     StringBuilder StbDias = new(1, 1024);
 
-                    if (i == 0) Area = "[90, 0, 89.95, 0.05]";
-                    else Area = "[-90, 0, -89.95, 0.05]";
+                    if (i == 0)
+                    {
+                        Area = "[90, 0, 89.95, 0.05]";
+                        Latitud = 0;
+                    }
+                    else
+                    {
+                        Area = "[-90, 0, -89.95, 0.05]";
+                        Latitud = 1;
+                    }
 
                     while (FBucle <= FFinal)
                     {
@@ -118,7 +131,7 @@ class Program
                             {
                                 if (!Fechas.Contains(FBucle))
                                 {
-                                    StbDias = StbDias.Append($"\"{FBucle.Day:00}\",");                                    
+                                    StbDias = StbDias.Append($"\"{FBucle.Day:00}\",");
                                 }
                                 else
                                 {
@@ -135,15 +148,12 @@ class Program
                                 StbDias = StbDias.Append(']');
                                 StrDias = StbDias.ToString().Trim();
 
-                                if (!DescargaDatos(config, StrDias, StrMeses, StrAños, Area).IsCompletedSuccessfully)
+                                if (!DescargaDatos(StrDias, StrMeses, StrAños, Area, SGScript, Latitud).IsCompletedSuccessfully)
                                 {
                                     Adelante = false;
                                     break;
                                 }
                             }
-
-                            if (FBucle > FFinal) break;
-
                             StbDias = StbDias.Clear();
                         }
                         if (!Adelante) break;
@@ -181,7 +191,7 @@ class Program
         }
     }
 
-    static Task DescargaDatos(IConfigurationRoot config, string Dias, string Meses, string Años, string Area)
+    static Task DescargaDatos(string Dias, string Meses, string Años, string Area, string SGScript, int Latitud)
     {
         Thread.CurrentThread.CurrentCulture = Usa;
         int Iterador = 0;
@@ -190,10 +200,6 @@ class Program
 
         try
         {
-            using var SScript = File.OpenText("piton/Main.py");
-            string SGScript = SScript.ReadToEnd();
-            SScript.Close();
-
             while (SGScript.Contains('@'))
             {
                 var Indice = SGScript.IndexOf('@');
@@ -206,7 +212,6 @@ class Program
                     else if (Iterador == 1) SGScript = SGScript.Insert(Indice, Meses);
                     else if (Iterador == 2) SGScript = SGScript.Insert(Indice, Dias);
                     else if (Iterador == 3) SGScript = SGScript.Insert(Indice, Area);
-                    else if (Iterador == 4) SGScript = SGScript.Insert(Indice, RutaD);
 
                     Iterador++;
                 }
@@ -220,20 +225,84 @@ class Program
             PPython.Start();
             PPython.WaitForExit();
             if (PPython.ExitCode != 0) throw new Exception("Error en el programa python.");
+
+            var Ficheros = Directory.EnumerateFiles(RutaD);
+            string RutaNc = string.Empty;
+            bool IsZip = false, IsNc = false;
+
+            foreach (var item in Ficheros)
+            {
+                if (item.Contains(".zip"))
+                {
+                    using var Archivo = ZipFile.OpenRead(item);
+                    Archivo.ExtractToDirectory(RutaD);
+                    IsZip = true;
+                    break;
+                }
+            }
+            Ficheros = Directory.EnumerateFiles(RutaD);
+
+            foreach (var item in Ficheros)
+            {
+                if (item.Contains(".nc"))
+                {
+                    RutaNc = item;
+                    IsNc = true;
+                    break;
+                }
+            }
+            if (!IsNc)
+            {
+                throw new Exception("No se ha podido encontrar el fichero netcdf.");
+            }
+
+            DataSet CDSData = DataSet.Open($"msds:nc?file={RutaNc}&openMode=readOnly");
+            var Temps = CDSData.GetData<float[,,,]>("t");
+            var TransFecha = CDSData.GetData<long[]>("valid_time");
+            DateOnly LaFecha = DateOnly.MinValue;
+
+            for (int i = 0; i < Temps.GetLength(0); i++) //valid_time - Variable
+            {
+                LaFecha = FInicio.AddDays((int)TransFecha[i]); //Days from archive time init
+                IEnumerable<double> TempsByH = [];
+                IEnumerable<double> Abscisas = [];
+
+                for (int j = 0; j < Temps.GetLength(1); j++) //Altura - 9 niveles
+                {
+                    TempsByH = TempsByH.Append(Temps[i, j, 0, 0]); // 1 punto de lat/lon
+                }
+                for (int n = 0; n < TempsByH.Count(); n++)
+                {
+                    Abscisas = Abscisas.Append(n);
+                }
+
+                alglib.spline1dconvdiffcubic(
+                    [.. Abscisas], [.. TempsByH], Abscisas.Count(), 1, 0.0, 1, 0.0, [.. Abscisas],
+                    Abscisas.Count(), out double[] Valores, out double[] Diffs
+                ); //Natural
+
+                if (DbConn.State != System.Data.ConnectionState.Open) DbConn.Open();
+                using var DbCom = DbConn.CreateCommand();
+                DbCom.Parameters.Clear();
+                DbCom.Parameters.AddWithValue("polo", Latitud);
+                DbCom.Parameters.AddWithValue("fecha", LaFecha);
+                DbCom.Parameters.AddWithValue("Valores", JsonSerializer.Serialize(TempsByH));
+                DbCom.Parameters.AddWithValue("ResValores", JsonSerializer.Serialize(Valores));
+                DbCom.Parameters.AddWithValue("ResDifs", JsonSerializer.Serialize(Diffs));
+                DbCom.ExecuteNonQuery();
+            }
+            return Task.CompletedTask;
+        }
+        catch (SqliteException ex)
+        {
+            Console.WriteLine(ex.Message);
+            return Task.FromException(ex);
         }
         catch (Exception e)
         {
             Console.WriteLine(e.Message);
             return Task.FromException(e);
         }
-
-        DataSet CDSData = DataSet.Open($"msds:nc?file={RutaD}&openMode=readOnly");
-        var Temps = CDSData.GetData<double[,,,]>("t");
-
-        if (File.Exists(RutaT)) File.Delete(RutaT);
-        if (File.Exists($"{RutaD}/*.zip")) File.Delete($"{RutaD}/*.zip");
-
-        return Task.CompletedTask;
     }
 
     static Task HazGraficos(DateTime Fecha, int Dias)
@@ -356,8 +425,6 @@ class Program
         */
         return Task.CompletedTask;
     }
-
-    
 }
 
 
