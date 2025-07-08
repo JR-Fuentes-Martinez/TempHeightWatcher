@@ -49,13 +49,13 @@ class Program
 
             if (double.TryParse(args[2], out Latitud))
             {
-                if (Latitud > 90.0 || Latitud < -90.0) NError = 3;
+                if (Latitud > 90.0 || Latitud < -90.0) NError = 3; //degrees_north ?????
             }
             else NError = 3;
 
             if (double.TryParse(args[3], out Longitud))
             {
-                if (Longitud > 180.0 || Longitud < -180.0) NError = 4;
+                if (Longitud > 180.0 || Longitud < -180.0) NError = 4; //degrees_east ????
             }
             else NError = 4;
 
@@ -94,7 +94,8 @@ class Program
 
             DbConn.Open();
             using var DbComando = DbConn.CreateCommand();
-            DbComando.CommandText = $"SELECT DISTINCT Fecha FROM CdsMain ORDER BY Fecha; ";
+            DbComando.CommandText = $"SELECT DISTINCT Fecha FROM CdsMain WHERE [Latitud]={Latitud.ToString("00.00", Usa)} AND "
+                + $"[Longitud] ={Longitud.ToString("00.00", Usa)} ORDER BY Fecha; ";
             using var ResDb = DbComando.ExecuteReader();
 
             if (ResDb.HasRows)
@@ -117,19 +118,19 @@ class Program
                 var StrAños = string.Empty;
                 var StrDias = string.Empty;
                 var Area = string.Empty;
-                bool Conmuta = false;
                 StringBuilder StbDias = new(1, 1024);
 
                 while (FBucle <= FFinal)
                 {
                     StrAños = $"{FBucle.Year:0000}";
                     var ElAño = FBucle.Year;
-
+                    
                     while (FBucle.Year == ElAño)
                     {
                         var ElMes = FBucle.Month;
                         StbDias = StbDias.Append('[');
                         StrMeses = $"[\"{FBucle.Month:00}\"]";
+                        bool Conmuta = false;
 
                         while (FBucle.Month == ElMes)
                         {
@@ -161,7 +162,9 @@ class Program
                             _ = DescargaDatos(StrDias, StrMeses, StrAños, SGScript, Latitud, Longitud, FirstFecha);
                         }
                         StbDias = StbDias.Clear();
-                    }
+
+                        if (FBucle > FFinal) break;
+                    }                    
                 }
             }
 
@@ -198,11 +201,11 @@ class Program
         string RutaT = Path.Combine(Directorio, "tmp/script.py");
         string RutaD = Path.Combine(Directorio, "tmp");
 
-        var FLatitud = Math.Abs(Latitud) - 0.01;
+        var FLatitud = Math.Abs(Latitud) - 0.01; // degrees_north ????
         if (Math.Sign(Latitud) < 0) FLatitud *= -1.0;
         var FLongitud = Math.Abs(Longitud) - 0.01;
-        if (Math.Sign(Longitud) < 0) FLongitud *= -1.0;
-        var Area = $"[{Latitud:00.00},{Longitud:00.00}],{FLatitud:00.00},{FLongitud:00.00}]";
+        if (Math.Sign(Longitud) < 0) FLongitud *= -1.0; //degrees_east ???
+        var Area = $"[{Latitud:00.00},{Longitud:00.00},{FLatitud:00.00},{FLongitud:00.00}]";
 
         try
         {
@@ -299,6 +302,12 @@ class Program
                 DbCom.Parameters.AddWithValue("magnitud", "t");
                 DbCom.ExecuteNonQuery();
             }
+
+            foreach (var item in Directory.EnumerateFiles(RutaD))
+            {
+                File.Delete(item);
+            }
+            Thread.CurrentThread.CurrentCulture = Cultura;
             return Task.CompletedTask;
         }
         catch (SqliteException ex)
@@ -310,14 +319,6 @@ class Program
         {
             Console.WriteLine(e.Message);
             return Task.FromException(e);
-        }
-        finally
-        {
-            foreach (var item in Directory.EnumerateFiles(RutaD))
-            {
-                File.Delete(item);
-            }
-            Thread.CurrentThread.CurrentCulture = Cultura;
         }
     }
 
