@@ -77,8 +77,8 @@ class Program
         try
         {
             List<DateOnly> Fechas = [];
-            DateOnly FirstFecha = DateOnly.MinValue, FinWork = DateOnly.MinValue;
-            int Estado = 0, DiasLeft = 0;
+            DateOnly FirstFecha = DateOnly.MinValue, FinWork = DateOnly.MinValue, LastFecha = DateOnly.MinValue;
+            int Estado = 0;
 
             DbConn.Open();
             using var DbComando = DbConn.CreateCommand();
@@ -93,15 +93,29 @@ class Program
                 FInicio = DateOnly.FromDateTime(ResDb.GetDateTime(0));
                 FinWork = DateOnly.FromDateTime(ResDb.GetDateTime(1));
                 Estado = ResDb.GetInt32(4);
-                DiasLeft = ResDb.GetInt32(6);
+                LastFecha = DateOnly.FromDateTime(ResDb.GetDateTime(6));
             }
             ResDb.Close();
+
+            if (FInicio == DateOnly.MinValue || Estado == 1)
+            {
+                if (Estado == 1)
+                {
+                    Console.WriteLine("El trabajo ya está terminado en la Db.");
+                    Console.WriteLine($"Info: Lá ultima fecha descargada es de {LastFecha.ToShortDateString()} para el trabajo {NomTrabajo}");
+                }
+                else
+                {
+                    Console.WriteLine("No se ha encontrado el trabajo en la Db.");
+                }
+                return;
+            }
 
             if (ITarea)
             {
                 if (Thread.CurrentThread.CurrentCulture.Name == "es-ES")
                 {
-                    Console.WriteLine($"Info: Quedan {DiasLeft} días por descargar.");
+                    Console.WriteLine($"Info: Lá ultima fecha descargada es de {LastFecha.ToShortDateString()} para el trabajo {NomTrabajo}");
                     return;
                 }
             }
@@ -119,34 +133,20 @@ class Program
             ResDb.Close();
             await ResDb.DisposeAsync();
 
-            if (FInicio == DateOnly.MinValue || Estado == 1)
-            {
-                if (Estado == 1)
-                {
-                    Console.WriteLine("El trabajo ya está terminado en la Db.");
-                }
-                else
-                {
-                    Console.WriteLine("No se ha encontrado el trabajo en la Db.");
-                }
-                return;
-            }
-
             if (DTarea)
             {
                 using var SScript = File.OpenText("piton/Main_temp.py");
                 string SGScript = SScript.ReadToEnd();
                 SScript.Close();
 
-                DateOnly FBucle = FInicio;
+                DateOnly FBucle = LastFecha.AddDays(1);
                 var StrMeses = string.Empty;
                 var StrAños = string.Empty;
                 var StrDias = string.Empty;
                 var Area = string.Empty;
                 StringBuilder StbDias = new(1, 1024);
 
-                if (SDias > DiasLeft) SDias = DiasLeft;
-                FFinal = FInicio.AddDays(SDias);
+                FFinal = LastFecha.AddDays(SDias);
 
                 while (FBucle <= FFinal)
                 {
@@ -176,10 +176,14 @@ class Program
                             {
                                 Console.WriteLine($"La fecha {FBucle.ToShortDateString()} ya está en la Db.");
                             }
-                            FBucle = FBucle.AddDays(1);
-                            if (FBucle > FFinal || FBucle > FinWork) break;
-                        }
 
+                            FBucle = FBucle.AddDays(1);
+                            if (FBucle > FFinal || FBucle > FinWork)
+                            {
+                                LastFecha = FBucle.AddDays(-1);
+                                break;
+                            }
+                        }
                         if (StbDias.Length > 1)
                         {
                             StbDias.Remove(StbDias.Length - 1, 1);
@@ -193,11 +197,16 @@ class Program
                         if (FBucle > FinWork)
                         {
                             Console.WriteLine("El trabajo de descarga se ha terminado.");
-                            DbComando.CommandText = $"UPDATE CdsWorks SET Estado=1 WHERE [NombreId]='{NomTrabajo}';";
+                            DbComando.CommandText = $"UPDATE CdsWorks SET Estado=1,FechaUltima='{FinWork:yyyy-MM-dd}' WHERE [NombreId]='{NomTrabajo}';";
                             DbComando.ExecuteNonQuery();
                             return;
-                        }                        
-                        if (FBucle > FFinal) break;
+                        }
+                        if (FBucle > FFinal)
+                        {
+                            DbComando.CommandText = $"UPDATE CdsWorks SET FechaUltima='{LastFecha:yyyy-MM-dd}' WHERE [NombreId]='{NomTrabajo}';";
+                            DbComando.ExecuteNonQuery();
+                            break;
+                        }
                     }
                 }
             }
@@ -333,14 +342,8 @@ class Program
                 DbCom.Parameters.AddWithValue("valores", JsonSerializer.Serialize(TempsByH));
                 DbCom.Parameters.AddWithValue("magnitud", "t");
                 DbCom.ExecuteNonQuery();
-            }
+            }          
 
-            foreach (var item in Directory.EnumerateFiles(RutaD))
-            {
-                File.Delete(item);
-            }
-
-            Thread.CurrentThread.CurrentCulture = Cultura;
             return Task.CompletedTask;
         }
         catch (SqliteException ex)
@@ -352,6 +355,14 @@ class Program
         {
             Console.WriteLine(e.Message);
             return Task.FromException(e);
+        }
+        finally
+        {
+            foreach (var item in Directory.EnumerateFiles(RutaD))
+            {
+                File.Delete(item);
+            }
+            Thread.CurrentThread.CurrentCulture = Cultura;
         }
     }
 
