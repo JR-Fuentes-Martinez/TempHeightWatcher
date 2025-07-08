@@ -19,47 +19,29 @@ class Program
     private static DateOnly FFinal = DateOnly.MinValue;
     private static int SDias = 0;
     private static readonly CultureInfo Usa = new("en-US");
-    private static readonly CultureInfo Español = new("es-ES");
     private static readonly string Directorio = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/Documentos/CDSData";
     private static readonly string ConString = $"Data Source={Directorio}/CdsData.sqlite;";
     private static readonly SqliteConnection DbConn = new(ConString);
     private static readonly float[] Alturas = [1000.0f, 850.0f, 700.0f, 500.0f, 250.0f, 100.0f, 70.0f, 10.0f, 2.0f];
 
-    static void Main(string[] args)
+    static async Task Main(string[] args)
     {
         int NError = -1;
-        bool DTarea = false, HTarea = false;
+        bool DTarea = false, HTarea = false, ITarea = false;
         double Latitud = 0.0, Longitud = 0.0;
-
+        string NomTrabajo = string.Empty;
+        /*
         IConfigurationRoot config = new ConfigurationBuilder()
             .AddUserSecrets<Program>()
             .Build();
-
-        if (args.Length == 5)
+        */
+        if (args.Length == 3)
         {
-            if (!DateOnly.TryParse(args[0], out FInicio))
-            {
-                NError = 1;
-            }
+            NomTrabajo = args[0];
 
-            if (!int.TryParse(args[1], out SDias))
-            {
-                NError = 2;
-            }
+            if (!int.TryParse(args[1], out SDias)) NError = 1;
 
-            if (double.TryParse(args[2], out Latitud))
-            {
-                if (Latitud > 90.0 || Latitud < -90.0) NError = 3; //degrees_north ?????
-            }
-            else NError = 3;
-
-            if (double.TryParse(args[3], out Longitud))
-            {
-                if (Longitud > 180.0 || Longitud < -180.0) NError = 4; //degrees_east ????
-            }
-            else NError = 4;
-
-            if (args[4].Contains('d', StringComparison.CurrentCultureIgnoreCase))
+            if (args[2].Contains('d', StringComparison.CurrentCultureIgnoreCase))
             {
                 DTarea = true;
             }
@@ -67,36 +49,65 @@ class Program
             {
                 HTarea = true;
             }
-            if (!(DTarea || HTarea)) NError = 5;
+            if (args[2].Contains('i', StringComparison.CurrentCultureIgnoreCase))
+            {
+                ITarea = true;
+                DTarea = false;
+                HTarea = false;
+            }
+            else if (!(DTarea || HTarea)) NError = 2;
         }
         else NError = 0;
 
         if (NError >= 0)
         {
-            if (Thread.CurrentThread.CurrentCulture == Español)
+            if (Thread.CurrentThread.CurrentCulture.Name == "es-ES")
             {
-                Console.WriteLine("Debe introducir una fecha en formato \"yyyy-MM-dd\", un entero positivo indicando el número de días, "
-                    + "latitud (90 .. -90), longitud (-180 .. 180) y una cadena incluyendo [d]->Descargar, [g]->Hacer gráfico, o ambas.");
+                Console.WriteLine("Debe introducir un Id de trabajo, un entero positivo indicando el número de días a descargas, "
+                + "y una cadena incluyendo [d]->Descargar, [g]->Hacer gráfico, o ambas, alternativamente [i]-> Info");
             }
             else
             {
-                Console.WriteLine("Enter a date in \"yyyy-MM-dd\" format, a positive integer indicating the number of days, "
-                + "latitude (90 .. -90), longitude (-180 .. 180), and a string including [d]->Download, [g]->Chart, or both.");
+                Console.WriteLine("Enter a Work ID, a positive integer indicating the number of days to download, "
+                + "and a string including [d]->Download, [g]->Chart, or both, altertanively [i]->Info");
             }
             return;
         }
 
         try
         {
-            FFinal = FInicio.AddDays(SDias);
             List<DateOnly> Fechas = [];
-            DateOnly FirstFecha = DateOnly.MinValue;
+            DateOnly FirstFecha = DateOnly.MinValue, FinWork = DateOnly.MinValue;
+            int Estado = 0, DiasLeft = 0;
 
             DbConn.Open();
             using var DbComando = DbConn.CreateCommand();
+            DbComando.CommandText = $"SELECT * FROM CdsWorks WHERE [NombreId]='{NomTrabajo}';";
+            var ResDb = DbComando.ExecuteReader();
+
+            if (ResDb.HasRows)
+            {
+                ResDb.Read();
+                Latitud = ResDb.GetDouble(2);
+                Longitud = ResDb.GetDouble(3);
+                FInicio = DateOnly.FromDateTime(ResDb.GetDateTime(0));
+                FinWork = DateOnly.FromDateTime(ResDb.GetDateTime(1));
+                Estado = ResDb.GetInt32(4);
+                DiasLeft = ResDb.GetInt32(6);
+            }
+            ResDb.Close();
+
+            if (ITarea)
+            {
+                if (Thread.CurrentThread.CurrentCulture.Name == "es-ES")
+                {
+                    Console.WriteLine($"Info: Quedan {DiasLeft} días por descargar.");
+                    return;
+                }
+            }
             DbComando.CommandText = $"SELECT DISTINCT Fecha FROM CdsMain WHERE [Latitud]={Latitud.ToString("00.00", Usa)} AND "
                 + $"[Longitud] ={Longitud.ToString("00.00", Usa)} ORDER BY Fecha; ";
-            using var ResDb = DbComando.ExecuteReader();
+            ResDb = DbComando.ExecuteReader();
 
             if (ResDb.HasRows)
             {
@@ -106,6 +117,20 @@ class Program
                 }
             }
             ResDb.Close();
+            await ResDb.DisposeAsync();
+
+            if (FInicio == DateOnly.MinValue || Estado == 1)
+            {
+                if (Estado == 1)
+                {
+                    Console.WriteLine("El trabajo ya está terminado en la Db.");
+                }
+                else
+                {
+                    Console.WriteLine("No se ha encontrado el trabajo en la Db.");
+                }
+                return;
+            }
 
             if (DTarea)
             {
@@ -120,11 +145,14 @@ class Program
                 var Area = string.Empty;
                 StringBuilder StbDias = new(1, 1024);
 
+                if (SDias > DiasLeft) SDias = DiasLeft;
+                FFinal = FInicio.AddDays(SDias);
+
                 while (FBucle <= FFinal)
                 {
                     StrAños = $"{FBucle.Year:0000}";
                     var ElAño = FBucle.Year;
-                    
+
                     while (FBucle.Year == ElAño)
                     {
                         var ElMes = FBucle.Month;
@@ -148,9 +176,8 @@ class Program
                             {
                                 Console.WriteLine($"La fecha {FBucle.ToShortDateString()} ya está en la Db.");
                             }
-
                             FBucle = FBucle.AddDays(1);
-                            if (FBucle > FFinal) break;
+                            if (FBucle > FFinal || FBucle > FinWork) break;
                         }
 
                         if (StbDias.Length > 1)
@@ -163,8 +190,15 @@ class Program
                         }
                         StbDias = StbDias.Clear();
 
+                        if (FBucle > FinWork)
+                        {
+                            Console.WriteLine("El trabajo de descarga se ha terminado.");
+                            DbComando.CommandText = $"UPDATE CdsWorks SET Estado=1 WHERE [NombreId]='{NomTrabajo}';";
+                            DbComando.ExecuteNonQuery();
+                            return;
+                        }                        
                         if (FBucle > FFinal) break;
-                    }                    
+                    }
                 }
             }
 
@@ -173,7 +207,6 @@ class Program
                 _ = HazGraficos(DateTime.MinValue, 0);
             }
 
-            Console.WriteLine("Programa terminado.");
             return;
         }
         catch (SqliteException ex)
@@ -188,8 +221,9 @@ class Program
         }
         finally
         {
+            Console.WriteLine("Programa terminado.");
             if (DbConn.State != System.Data.ConnectionState.Closed) DbConn.Close();
-            DbConn.Dispose();
+            DbConn?.Dispose();
         }
     }
 
@@ -283,22 +317,20 @@ class Program
                 {
                     Abscisas = Abscisas.Append(n);
                 }
-
+                /*
                 alglib.spline1dconvdiffcubic(
                     [.. Abscisas], [.. TempsByH], Abscisas.Count(), 1, 0.0, 1, 0.0, [.. Abscisas],
                     Abscisas.Count(), out double[] Valores, out double[] Diffs
                 ); //Natural
-
+                */
                 if (DbConn.State != System.Data.ConnectionState.Open) DbConn.Open();
                 using var DbCom = DbConn.CreateCommand();
-                DbCom.CommandText = "INSERT INTO CdsMain VALUES (@fecha,@valores,@resvalores,@resdifs,@latitud,@longitud,@magnitud);";
+                DbCom.CommandText = "INSERT INTO CdsMain VALUES (@fecha,@valores,@latitud,@longitud,@magnitud);";
                 DbCom.Parameters.Clear();
                 DbCom.Parameters.AddWithValue("latitud", Latitud);
                 DbCom.Parameters.AddWithValue("longitud", Longitud);
                 DbCom.Parameters.AddWithValue("fecha", LaFecha);
                 DbCom.Parameters.AddWithValue("valores", JsonSerializer.Serialize(TempsByH));
-                DbCom.Parameters.AddWithValue("resvalores", JsonSerializer.Serialize(Valores));
-                DbCom.Parameters.AddWithValue("resdifs", JsonSerializer.Serialize(Diffs));
                 DbCom.Parameters.AddWithValue("magnitud", "t");
                 DbCom.ExecuteNonQuery();
             }
@@ -307,6 +339,7 @@ class Program
             {
                 File.Delete(item);
             }
+
             Thread.CurrentThread.CurrentCulture = Cultura;
             return Task.CompletedTask;
         }
