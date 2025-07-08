@@ -19,6 +19,7 @@ class Program
     private static DateOnly FFinal = DateOnly.MinValue;
     private static int SDias = 0;
     private static readonly CultureInfo Usa = new("en-US");
+    private static readonly CultureInfo Español = new("es-ES");
     private static readonly string Directorio = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/Documentos/CDSData";
     private static readonly string ConString = $"Data Source={Directorio}/CdsData.sqlite;";
     private static readonly SqliteConnection DbConn = new(ConString);
@@ -28,52 +29,68 @@ class Program
     {
         int NError = -1;
         bool DTarea = false, HTarea = false;
+        double Latitud = 0.0, Longitud = 0.0;
 
         IConfigurationRoot config = new ConfigurationBuilder()
             .AddUserSecrets<Program>()
             .Build();
 
-        if (args.Length > 1)
+        if (args.Length == 5)
         {
             if (!DateOnly.TryParse(args[0], out FInicio))
             {
                 NError = 1;
             }
+
             if (!int.TryParse(args[1], out SDias))
             {
                 NError = 2;
             }
-            if (NError == -1 && args.Length == 3)
-            {
-                NError = 4;
 
-                if (args[2].Contains('d', StringComparison.CurrentCultureIgnoreCase))
-                {
-                    DTarea = true;
-                    NError = -1;
-                }
-                if (args[2].Contains('g', StringComparison.CurrentCultureIgnoreCase))
-                {
-                    HTarea = true;
-                    NError = -1;
-                }
+            if (double.TryParse(args[2], out Latitud))
+            {
+                if (Latitud > 90.0 || Latitud < -90.0) NError = 3;
             }
-            else if (args.Length != 3) NError = 3;
+            else NError = 3;
+
+            if (double.TryParse(args[3], out Longitud))
+            {
+                if (Longitud > 180.0 || Longitud < -180.0) NError = 4;
+            }
+            else NError = 4;
+
+            if (args[4].Contains('d', StringComparison.CurrentCultureIgnoreCase))
+            {
+                DTarea = true;
+            }
+            if (args[2].Contains('g', StringComparison.CurrentCultureIgnoreCase))
+            {
+                HTarea = true;
+            }
+            if (!(DTarea || HTarea)) NError = 5;
         }
         else NError = 0;
 
         if (NError >= 0)
         {
-            Console.WriteLine("Debe introducir una fecha en formato \"yyyy-MM-dd\", un entero positivo indicando el número de días "
-                + "y una cadena incluyendo [d]->Descargar, [g]->Hacer gráfico, o ambas.");
+            if (Thread.CurrentThread.CurrentCulture == Español)
+            {
+                Console.WriteLine("Debe introducir una fecha en formato \"yyyy-MM-dd\", un entero positivo indicando el número de días, "
+                    + "latitud (90 .. -90), longitud (-180 .. 180) y una cadena incluyendo [d]->Descargar, [g]->Hacer gráfico, o ambas.");
+            }
+            else
+            {
+                Console.WriteLine("Enter a date in \"yyyy-MM-dd\" format, a positive integer indicating the number of days, "
+                + "latitude (90 .. -90), longitude (-180 .. 180), and a string including [d]->Download, [g]->Chart, or both.");
+            }
             return;
         }
 
         try
         {
-            bool Adelante = true;
             FFinal = FInicio.AddDays(SDias);
             List<DateOnly> Fechas = [];
+            DateOnly FirstFecha = DateOnly.MinValue;
 
             DbConn.Open();
             using var DbComando = DbConn.CreateCommand();
@@ -91,84 +108,66 @@ class Program
 
             if (DTarea)
             {
-                using var SScript = File.OpenText("piton/Main.py");
+                using var SScript = File.OpenText("piton/Main_temp.py");
                 string SGScript = SScript.ReadToEnd();
                 SScript.Close();
 
-                for (int i = 0; i < 2; i++)
+                DateOnly FBucle = FInicio;
+                var StrMeses = string.Empty;
+                var StrAños = string.Empty;
+                var StrDias = string.Empty;
+                var Area = string.Empty;
+                bool Conmuta = false;
+                StringBuilder StbDias = new(1, 1024);
+
+                while (FBucle <= FFinal)
                 {
-                    DateOnly FBucle = FInicio;
-                    var StrMeses = string.Empty;
-                    var StrAños = string.Empty;
-                    var StrDias = string.Empty;
-                    var Area = string.Empty;
-                    var Latitud = 0;
-                    StringBuilder StbDias = new(1, 1024);
+                    StrAños = $"{FBucle.Year:0000}";
+                    var ElAño = FBucle.Year;
 
-                    if (i == 0)
+                    while (FBucle.Year == ElAño)
                     {
-                        Area = "[90, 0, 89.95, 0.05]";
-                        Latitud = 0;
-                    }
-                    else
-                    {
-                        Area = "[-90, 0, -89.95, 0.05]";
-                        Latitud = 1;
-                    }
+                        var ElMes = FBucle.Month;
+                        StbDias = StbDias.Append('[');
+                        StrMeses = $"[\"{FBucle.Month:00}\"]";
 
-                    while (FBucle <= FFinal)
-                    {
-                        StrAños = $"{FBucle.Year:0000}";
-                        var ElAño = FBucle.Year;
-
-                        while (FBucle.Year == ElAño)
+                        while (FBucle.Month == ElMes)
                         {
-                            var ElMes = FBucle.Month;
-                            StbDias = StbDias.Append('[');
-                            StrMeses = $"[\"{FBucle.Month:00}\"]";
-
-                            while (FBucle.Month == ElMes)
+                            if (!Fechas.Contains(FBucle))
                             {
-                                if (!Fechas.Contains(FBucle))
-                                {
-                                    StbDias = StbDias.Append($"\"{FBucle.Day:00}\",");
-                                }
-                                else
-                                {
-                                    Console.WriteLine($"La fecha {FBucle.ToShortDateString()} ya está en la Db.");
-                                }
+                                StbDias = StbDias.Append($"\"{FBucle.Day:00}\",");
 
-                                FBucle = FBucle.AddDays(1);
-                                if (FBucle > FFinal) break;
-                            }
-
-                            if (StbDias.Length > 1)
-                            {
-                                StbDias.Remove(StbDias.Length - 1, 1);
-                                StbDias = StbDias.Append(']');
-                                StrDias = StbDias.ToString().Trim();
-
-                                if (!DescargaDatos(StrDias, StrMeses, StrAños, Area, SGScript, Latitud).IsCompletedSuccessfully)
+                                if (!Conmuta)
                                 {
-                                    Adelante = false;
-                                    break;
+                                    FirstFecha = FBucle;
+                                    Conmuta = true;
                                 }
                             }
-                            StbDias = StbDias.Clear();
+                            else
+                            {
+                                Console.WriteLine($"La fecha {FBucle.ToShortDateString()} ya está en la Db.");
+                            }
+
+                            FBucle = FBucle.AddDays(1);
+                            if (FBucle > FFinal) break;
                         }
-                        if (!Adelante) break;
+
+                        if (StbDias.Length > 1)
+                        {
+                            StbDias.Remove(StbDias.Length - 1, 1);
+                            StbDias = StbDias.Append(']');
+                            StrDias = StbDias.ToString().Trim();
+
+                            _ = DescargaDatos(StrDias, StrMeses, StrAños, SGScript, Latitud, Longitud, FirstFecha);
+                        }
+                        StbDias = StbDias.Clear();
                     }
-                    if (!Adelante) break;
                 }
             }
 
-            if (HTarea && Adelante)
+            if (HTarea)
             {
                 _ = HazGraficos(DateTime.MinValue, 0);
-            }
-            else
-            {
-                if (!Adelante) Console.WriteLine("La tarea de descarga no termino adecuadamente.");
             }
 
             Console.WriteLine("Programa terminado.");
@@ -191,12 +190,19 @@ class Program
         }
     }
 
-    static Task DescargaDatos(string Dias, string Meses, string Años, string Area, string SGScript, int Latitud)
+    static Task DescargaDatos(string Dias, string Meses, string Años, string SGScript, double Latitud, double Longitud, DateOnly Fecha)
     {
+        var Cultura = Thread.CurrentThread.CurrentCulture;
         Thread.CurrentThread.CurrentCulture = Usa;
         int Iterador = 0;
         string RutaT = Path.Combine(Directorio, "tmp/script.py");
         string RutaD = Path.Combine(Directorio, "tmp");
+
+        var FLatitud = Math.Abs(Latitud) - 0.01;
+        if (Math.Sign(Latitud) < 0) FLatitud *= -1.0;
+        var FLongitud = Math.Abs(Longitud) - 0.01;
+        if (Math.Sign(Longitud) < 0) FLongitud *= -1.0;
+        var Area = $"[{Latitud:00.00},{Longitud:00.00}],{FLatitud:00.00},{FLongitud:00.00}]";
 
         try
         {
@@ -228,7 +234,7 @@ class Program
 
             var Ficheros = Directory.EnumerateFiles(RutaD);
             string RutaNc = string.Empty;
-            bool IsZip = false, IsNc = false;
+            bool IsNc = false;
 
             foreach (var item in Ficheros)
             {
@@ -236,7 +242,6 @@ class Program
                 {
                     using var Archivo = ZipFile.OpenRead(item);
                     Archivo.ExtractToDirectory(RutaD);
-                    IsZip = true;
                     break;
                 }
             }
@@ -263,7 +268,7 @@ class Program
 
             for (int i = 0; i < Temps.GetLength(0); i++) //valid_time - Variable
             {
-                LaFecha = FInicio.AddDays((int)TransFecha[i]); //Days from archive time init
+                LaFecha = Fecha.AddDays((int)TransFecha[i]); //Days from archive time init!!!!!!!!
                 IEnumerable<double> TempsByH = [];
                 IEnumerable<double> Abscisas = [];
 
@@ -271,7 +276,7 @@ class Program
                 {
                     TempsByH = TempsByH.Append(Temps[i, j, 0, 0]); // 1 punto de lat/lon
                 }
-                for (int n = 0; n < TempsByH.Count(); n++)
+                for (int n = 0; n < TempsByH.Count(); n++) //Abscisas for spline.
                 {
                     Abscisas = Abscisas.Append(n);
                 }
@@ -283,12 +288,15 @@ class Program
 
                 if (DbConn.State != System.Data.ConnectionState.Open) DbConn.Open();
                 using var DbCom = DbConn.CreateCommand();
+                DbCom.CommandText = "INSERT INTO CdsMain VALUES (@fecha,@valores,@resvalores,@resdifs,@latitud,@longitud,@magnitud);";
                 DbCom.Parameters.Clear();
-                DbCom.Parameters.AddWithValue("polo", Latitud);
+                DbCom.Parameters.AddWithValue("latitud", Latitud);
+                DbCom.Parameters.AddWithValue("longitud", Longitud);
                 DbCom.Parameters.AddWithValue("fecha", LaFecha);
-                DbCom.Parameters.AddWithValue("Valores", JsonSerializer.Serialize(TempsByH));
-                DbCom.Parameters.AddWithValue("ResValores", JsonSerializer.Serialize(Valores));
-                DbCom.Parameters.AddWithValue("ResDifs", JsonSerializer.Serialize(Diffs));
+                DbCom.Parameters.AddWithValue("valores", JsonSerializer.Serialize(TempsByH));
+                DbCom.Parameters.AddWithValue("resvalores", JsonSerializer.Serialize(Valores));
+                DbCom.Parameters.AddWithValue("resdifs", JsonSerializer.Serialize(Diffs));
+                DbCom.Parameters.AddWithValue("magnitud", "t");
                 DbCom.ExecuteNonQuery();
             }
             return Task.CompletedTask;
@@ -302,6 +310,14 @@ class Program
         {
             Console.WriteLine(e.Message);
             return Task.FromException(e);
+        }
+        finally
+        {
+            foreach (var item in Directory.EnumerateFiles(RutaD))
+            {
+                File.Delete(item);
+            }
+            Thread.CurrentThread.CurrentCulture = Cultura;
         }
     }
 
