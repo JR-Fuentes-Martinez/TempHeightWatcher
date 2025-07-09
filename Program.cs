@@ -10,6 +10,8 @@ using ScottPlot.TickGenerators.TimeUnits;
 using System.Text;
 using System.Text.Json;
 using System.IO.Compression;
+using System.Data;
+using System.Xml;
 
 namespace TempHeightWatcher;
 
@@ -311,10 +313,13 @@ class Program
             var Temps = CDSData.GetData<float[,,,]>("t");
             var TransFecha = CDSData.GetData<long[]>("valid_time");
             DateOnly LaFecha = DateOnly.MinValue;
+            var JsonTemps = string.Empty;
+            IEnumerable<DateOnly> FFechas = [];
 
             for (int i = 0; i < Temps.GetLength(0); i++) //valid_time - Variable
             {
                 LaFecha = Fecha.AddDays((int)TransFecha[i]); //Days from archive time init!!!!!!!!
+                FFechas = FFechas.Append(LaFecha);
                 IEnumerable<double> TempsByH = [];
                 IEnumerable<double> Abscisas = [];
 
@@ -333,18 +338,56 @@ class Program
                 ); //Natural
                 */
                 if (DbConn.State != System.Data.ConnectionState.Open) DbConn.Open();
+                JsonTemps = JsonSerializer.Serialize(TempsByH);
                 using var DbCom = DbConn.CreateCommand();
                 DbCom.CommandText = "INSERT INTO CdsMain VALUES (@fecha,@valores,@latitud,@longitud,@magnitud);";
                 DbCom.Parameters.Clear();
                 DbCom.Parameters.AddWithValue("latitud", Latitud);
                 DbCom.Parameters.AddWithValue("longitud", Longitud);
                 DbCom.Parameters.AddWithValue("fecha", LaFecha);
-                DbCom.Parameters.AddWithValue("valores", JsonSerializer.Serialize(TempsByH));
+                DbCom.Parameters.AddWithValue("valores", JsonTemps);
                 DbCom.Parameters.AddWithValue("magnitud", "t");
                 DbCom.ExecuteNonQuery();
-            }          
+            }
 
-            return Task.CompletedTask;
+            var options = new JsonReaderOptions
+            {
+                AllowTrailingCommas = true,
+                CommentHandling = JsonCommentHandling.Skip
+            };
+
+            foreach (var item in FFechas)
+            {
+                using var DbCom = DbConn.CreateCommand();
+                DbCom.CommandText = "SELECT Valores FROM CdsMain WHERE Fecha=@fecha AND Latitud=@latitud AND Longitud=@longitud AND Magnitud=@magnitud;";
+                DbCom.Parameters.Clear();
+                DbCom.Parameters.AddWithValue("fecha", item);
+                DbCom.Parameters.AddWithValue("latitud", Latitud);
+                DbCom.Parameters.AddWithValue("longitud", Longitud);
+                DbCom.Parameters.AddWithValue("magnitud", "t");
+                using var Resdb = DbCom.ExecuteReader();
+
+                if (Resdb.HasRows)
+                {
+                    while (Resdb.Read())
+                    {
+                        byte[] LosBytes = [];
+                        Resdb.GetBytes(Resdb.GetString(1), 0, LosBytes, 0, Resdb.GetString(1).Length);
+                        var reader = new Utf8JsonReader(LosBytes, options);
+
+                        while (reader.Read())
+                        {
+                            if (reader.TokenType == JsonTokenType.Number)
+                            {
+
+                            }
+                        }
+                    }
+                }
+                Resdb.Close(); 
+
+
+            }
         }
         catch (SqliteException ex)
         {
