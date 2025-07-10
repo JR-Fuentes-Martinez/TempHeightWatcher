@@ -41,6 +41,6 @@ And for its implementation, data and software obtained from ERA-5 CDS (Copernicu
 4. The entries to the program consist of a series of works with certain start and end dates that are requested and that are saved in the same database. It is possible to download each work in parts and its status of achievement is tracked.
 5. That characteristic of the splines will be considered to be somewhat defenseless at their start and end points. It will be tried as much as possible to consider a sufficient number of values, trying to reduce this space of uncertainty to a minimum. The different possibilities of construction will also be tested, natural, quadratic or with specific values of first or second derivative.
 ----------
-*"It is not only about what. Why and how matters."*   
+*"It is not only about what. Why, how and when matters."*   
 *"The main goal, the truth and only the truth. Meanwhile welcome to certainty."*   
 JRFM - 2025
