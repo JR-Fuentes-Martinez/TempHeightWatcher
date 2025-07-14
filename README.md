@@ -15,13 +15,15 @@ Y para su implementación, se incorporará series de datos obtenidos de ERA-5 CD
 
 ----------
 ### Objetivos y Estado  
+**Modificado a 2025-07-12**   
 Se citan a continuación los principales objetivos y el estado de consecución:  
 
 1. Conseguir una automatización de los scripts de Python para la cdsapi sensible a cambios de mes. Se ha solucionado realizando peticiones por año y por mes, con los días a considerar por cada mes. Se añade una manera de captar si los registros ya existen y no necesitan ser descargados de nuevo. Está terminado y en estado de prueba.  
-2. El primer objetivo aprovechando el ordenamiento de dimensiones realizado, es obtener la variación (derivada) por cada fecha de la temperatura según alturas. La variable de referencia es esa altura y sobre ella se deriva. Puede mostrar curvas interesantes en un sentido vertical y con comparación de fechas. Ahora mismo se está trabajando en esto. 
+2. El primer objetivo aprovechando el ordenamiento de dimensiones realizado, es obtener la variación (derivada) por cada fecha de la temperatura según alturas. La variable de referencia es esa altura y sobre ella se deriva. Puede mostrar curvas interesantes en un sentido vertical y con comparación de fechas. Ahora mismo se está trabajando en esto.  
 3. El segundo objetivo es tratar suficientemente el dataset y poder obtener la derivada a las distintas alturas en el tiempo. Esta respondería a una función temporal. Se espera empezar en el menor tiempo posible.
-4. Las entradas al programa consisten en una serie de trabajos con unas determinadas fechas de comienzo y fin que se solicitan y que se guardan en la misma base de datos. Se da la posibilidad de descargar cada trabajo por partes y se hace un seguimiento de su estado de consecución.
-5. Se considerará esa característica de las splines de ser algo indefenidas en sus puntos de inicio y final. Se tratará en todo lo posible de considerar suficiente número de valores tratando de disminuir ese espacio de indefinición a un mínimo. Tambien se ensayaran las distintas posibilidades de construcción al respecto, natural, cuadrática o con valores concretos de primera o segunda derivada.
+4. Se registrará la serie en el tiempo de temperaturas máximas y mínimas, los focos caliente y frío y sus alturas.
+5. Las entradas al programa consisten en una serie de trabajos con unas determinadas fechas de comienzo y fin que se solicitan y que se guardan en la misma base de datos. Se da la posibilidad de descargar cada trabajo por partes y se hace un seguimiento de su estado de consecución.
+6. Se considerará esa característica de las splines de ser algo indefenidas en sus puntos de inicio y final. Se tratará en todo lo posible de considerar suficiente número de valores tratando de disminuir ese espacio de indefinición a un mínimo. Tambien se ensayaran las distintas posibilidades de construcción al respecto, natural, cuadrática o con valores concretos de primera o segunda derivada.
 ----------
 **ENGLISH AUTOMATED TRANSLATION. (sorry)**    
 **About the concept**   
@@ -44,3 +46,5 @@ And for its implementation, data and software obtained from ERA-5 CDS (Copernicu
 *"It is not only about what. Why, how and when matters."*   
 *"The main goal, the truth and only the truth. Meanwhile welcome to certainty."*   
 JRFM - 2025
+
+![Graph](demo.svg)

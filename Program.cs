@@ -10,8 +10,13 @@ using ScottPlot.TickGenerators.TimeUnits;
 using System.Text;
 using System.Text.Json;
 using System.IO.Compression;
-using System.Data;
 using System.Xml;
+using ScottPlot.Plottables;
+using ScottPlot.DataSources;
+using Microsoft.Data.Analysis;
+using SQLitePCL;
+using System.Data.Common;
+using System.Data.SqlTypes;
 
 namespace TempHeightWatcher;
 
@@ -20,11 +25,28 @@ class Program
     private static DateOnly FInicio = DateOnly.MinValue;
     private static DateOnly FFinal = DateOnly.MinValue;
     private static int SDias = 0;
-    private static readonly CultureInfo Usa = new("en-US");
-    private static readonly string Directorio = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/Documentos/CDSData";
-    private static readonly string ConString = $"Data Source={Directorio}/CdsData.sqlite;";
-    private static readonly SqliteConnection DbConn = new(ConString);
-    private static readonly float[] Alturas = [1000.0f, 850.0f, 700.0f, 500.0f, 250.0f, 100.0f, 70.0f, 10.0f, 2.0f];
+    private static readonly CultureInfo Usa = new("");
+    private static readonly string Directorio =
+    $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/Documentos/CDSData";
+    private static readonly string CDSDataPath = $"{Directorio}/CdsData.csv";
+    private static readonly SqliteConnection DbConn = new($"Data Source={Directorio}/CdsData.sqlite;");
+    private static DataFrame DFTemp = new();
+    private static readonly double[] Alturas = [
+        1.0, 2.0, 3.0,
+        5.0, 7.0, 10.0,
+        20, 30, 50,
+        70, 100, 125,
+        150, 175, 200,
+        225, 250, 300,
+        350, 400, 450,
+        500, 550, 600,
+        650, 700, 750,
+        775, 800, 825,
+        850, 875, 900,
+        925, 950, 975,
+        1000
+    ];
+    internal static readonly double[] values = [0.0];
 
     static async Task Main(string[] args)
     {
@@ -79,7 +101,7 @@ class Program
         try
         {
             List<DateOnly> Fechas = [];
-            DateOnly FirstFecha = DateOnly.MinValue, FinWork = DateOnly.MinValue, LastFecha = DateOnly.MinValue;
+            DateOnly FinWork = DateOnly.MinValue, LastFecha = DateOnly.MinValue, FirstFecha = DateOnly.MinValue;
             int Estado = 0;
 
             DbConn.Open();
@@ -99,19 +121,6 @@ class Program
             }
             ResDb.Close();
 
-            if (FInicio == DateOnly.MinValue || Estado == 1)
-            {
-                if (Estado == 1)
-                {
-                    Console.WriteLine("El trabajo ya está terminado en la Db.");
-                    Console.WriteLine($"Info: Lá ultima fecha descargada es de {LastFecha.ToShortDateString()} para el trabajo {NomTrabajo}");
-                }
-                else
-                {
-                    Console.WriteLine("No se ha encontrado el trabajo en la Db.");
-                }
-                return;
-            }
 
             if (ITarea)
             {
@@ -121,19 +130,13 @@ class Program
                     return;
                 }
             }
-            DbComando.CommandText = $"SELECT DISTINCT Fecha FROM CdsMain WHERE [Latitud]={Latitud.ToString("00.00", Usa)} AND "
-                + $"[Longitud] ={Longitud.ToString("00.00", Usa)} ORDER BY Fecha; ";
-            ResDb = DbComando.ExecuteReader();
 
-            if (ResDb.HasRows)
-            {
-                while (ResDb.Read())
-                {
-                    Fechas.Add(DateOnly.FromDateTime(ResDb.GetDateTime(0)));
-                }
-            }
-            ResDb.Close();
-            await ResDb.DisposeAsync();
+            var MainDF = DataFrame.LoadCsv(CDSDataPath, cultureInfo: Usa);
+            DFTemp = MainDF.Filter(MainDF["Latitud"].ElementwiseEquals(Latitud));
+            DFTemp = DFTemp.Filter(DFTemp["Longitud"].ElementwiseEquals(Longitud));
+            DFTemp = DFTemp.Filter(DFTemp["Magnitud"].ElementwiseEquals("t"));
+            DFTemp = DFTemp.Filter(DFTemp["Fecha"].ElementwiseGreaterThanOrEqual(FechaToNum(LastFecha)));
+            DFTemp = DFTemp.Filter(DFTemp["Fecha"].ElementwiseLessThanOrEqual(FechaToNum(FinWork)));
 
             if (DTarea)
             {
@@ -148,6 +151,19 @@ class Program
                 var Area = string.Empty;
                 StringBuilder StbDias = new(1, 1024);
 
+                if (FInicio == DateOnly.MinValue || Estado == 1)
+                {
+                    if (Estado == 1)
+                    {
+                        Console.WriteLine("El trabajo ya está terminado en la Db.");
+                        Console.WriteLine($"Info: Lá ultima fecha descargada es de {LastFecha.ToShortDateString()} para el trabajo {NomTrabajo}");
+                    }
+                    else
+                    {
+                        Console.WriteLine("No se ha encontrado el trabajo en la Db.");
+                    }
+                    return;
+                }
                 FFinal = LastFecha.AddDays(SDias);
 
                 while (FBucle <= FFinal)
@@ -164,7 +180,7 @@ class Program
 
                         while (FBucle.Month == ElMes)
                         {
-                            if (!Fechas.Contains(FBucle))
+                            if (!DFTemp.Columns["Fecha"].ElementwiseEquals(FechaToNum(FBucle)).Any())
                             {
                                 StbDias = StbDias.Append($"\"{FBucle.Day:00}\",");
 
@@ -215,7 +231,7 @@ class Program
 
             if (HTarea)
             {
-                _ = HazGraficos(DateTime.MinValue, 0);
+                _ = HazGraficos(FInicio, 0);
             }
 
             return;
@@ -236,6 +252,17 @@ class Program
             if (DbConn.State != System.Data.ConnectionState.Closed) DbConn.Close();
             DbConn?.Dispose();
         }
+    }
+
+    static int FechaToNum(DateOnly Fecha)
+    {
+        var LAFecha = new DateTime(Fecha, TimeOnly.MinValue);
+        var Tiempo = LAFecha - DateTime.UnixEpoch;
+        return Tiempo.Days;
+    }
+    static DateOnly NumToFecha(long Numero)
+    {
+        return DateOnly.FromDateTime(DateTime.UnixEpoch.AddDays(Numero));
     }
 
     static Task DescargaDatos(string Dias, string Meses, string Años, string SGScript, double Latitud, double Longitud, DateOnly Fecha)
@@ -313,7 +340,6 @@ class Program
             var Temps = CDSData.GetData<float[,,,]>("t");
             var TransFecha = CDSData.GetData<long[]>("valid_time");
             DateOnly LaFecha = DateOnly.MinValue;
-            var JsonTemps = string.Empty;
             IEnumerable<DateOnly> FFechas = [];
 
             for (int i = 0; i < Temps.GetLength(0); i++) //valid_time - Variable
@@ -321,73 +347,29 @@ class Program
                 LaFecha = Fecha.AddDays((int)TransFecha[i]); //Days from archive time init!!!!!!!!
                 FFechas = FFechas.Append(LaFecha);
                 IEnumerable<double> TempsByH = [];
-                IEnumerable<double> Abscisas = [];
 
-                for (int j = 0; j < Temps.GetLength(1); j++) //Altura - 9 niveles
+                for (int j = 0; j < Temps.GetLength(1); j++) //Altura - 37 niveles
                 {
                     TempsByH = TempsByH.Append(Temps[i, j, 0, 0]); // 1 punto de lat/lon
                 }
-                for (int n = 0; n < TempsByH.Count(); n++) //Abscisas for spline.
-                {
-                    Abscisas = Abscisas.Append(n);
-                }
-                /*
                 alglib.spline1dconvdiffcubic(
-                    [.. Abscisas], [.. TempsByH], Abscisas.Count(), 1, 0.0, 1, 0.0, [.. Abscisas],
-                    Abscisas.Count(), out double[] Valores, out double[] Diffs
+                    Alturas, [.. TempsByH], Alturas.Length, 1, 0.0, 1, 0.0, Alturas,
+                    Alturas.Length, out double[] Valores, out double[] Diffs
                 ); //Natural
-                */
-                if (DbConn.State != System.Data.ConnectionState.Open) DbConn.Open();
-                JsonTemps = JsonSerializer.Serialize(TempsByH);
-                using var DbCom = DbConn.CreateCommand();
-                DbCom.CommandText = "INSERT INTO CdsMain VALUES (@fecha,@valores,@latitud,@longitud,@magnitud);";
-                DbCom.Parameters.Clear();
-                DbCom.Parameters.AddWithValue("latitud", Latitud);
-                DbCom.Parameters.AddWithValue("longitud", Longitud);
-                DbCom.Parameters.AddWithValue("fecha", LaFecha);
-                DbCom.Parameters.AddWithValue("valores", JsonTemps);
-                DbCom.Parameters.AddWithValue("magnitud", "t");
-                DbCom.ExecuteNonQuery();
-            }
 
-            var options = new JsonReaderOptions
-            {
-                AllowTrailingCommas = true,
-                CommentHandling = JsonCommentHandling.Skip
-            };
-
-            foreach (var item in FFechas)
-            {
-                using var DbCom = DbConn.CreateCommand();
-                DbCom.CommandText = "SELECT Valores FROM CdsMain WHERE Fecha=@fecha AND Latitud=@latitud AND Longitud=@longitud AND Magnitud=@magnitud;";
-                DbCom.Parameters.Clear();
-                DbCom.Parameters.AddWithValue("fecha", item);
-                DbCom.Parameters.AddWithValue("latitud", Latitud);
-                DbCom.Parameters.AddWithValue("longitud", Longitud);
-                DbCom.Parameters.AddWithValue("magnitud", "t");
-                using var Resdb = DbCom.ExecuteReader();
-
-                if (Resdb.HasRows)
+                for (int j = 0; j < Temps.GetLength(1); j++) //Altura - 37 niveles
                 {
-                    while (Resdb.Read())
-                    {
-                        byte[] LosBytes = [];
-                        Resdb.GetBytes(Resdb.GetString(1), 0, LosBytes, 0, Resdb.GetString(1).Length);
-                        var reader = new Utf8JsonReader(LosBytes, options);
-
-                        while (reader.Read())
-                        {
-                            if (reader.TokenType == JsonTokenType.Number)
-                            {
-
-                            }
-                        }
-                    }
+                    var TTempo = TempsByH.ToArray();
+                    IEnumerable<object> Fila = [FechaToNum(LaFecha), Latitud, Longitud, 0.0, 0.0, "t", Alturas[j], TTempo[j], Valores[j], Diffs[j]];
+                    DFTemp = DFTemp.Append(Fila, true);
                 }
-                Resdb.Close(); 
-
-
             }
+            var MainDF = DataFrame.LoadCsv(CDSDataPath, cultureInfo: Usa);
+            MainDF = MainDF.Append(DFTemp.Rows, true);
+            MainDF = MainDF.OrderBy("Fecha");
+            DataFrame.SaveCsv(MainDF, CDSDataPath, cultureInfo: Usa);
+
+            return Task.CompletedTask;
         }
         catch (SqliteException ex)
         {
@@ -409,8 +391,46 @@ class Program
         }
     }
 
-    static Task HazGraficos(DateTime Fecha, int Dias)
+    static Task HazGraficos(DateOnly Fecha, int Dias)
     {
+        IEnumerable<double> LasDiffs = [];
+        DateTime LasFechas = DateTime.MinValue;
+        var Data = DataFrame.LoadCsv(CDSDataPath, cultureInfo: Usa);
+
+        Data = Data.Filter(Data["Fecha"].ElementwiseEquals(FechaToNum(Fecha)));
+        Data = Data.OrderBy("Nivel");
+
+        foreach (var item in Data.Rows)
+        {
+            LasDiffs = LasDiffs.Append((float)item[9]);
+        }
+
+        Plot myPlot = new();
+
+        // change figure colors
+        myPlot.FigureBackground.Color = Color.FromHex("#181818");
+        myPlot.DataBackground.Color = Color.FromHex("#1f1f1f");
+
+        // change axis and grid colors
+        myPlot.Axes.Color(Color.FromHex("#d7d7d7"));
+        myPlot.Grid.MajorLineColor = Color.FromHex("#404040");
+
+        // change legend colors
+        myPlot.Legend.BackgroundColor = Color.FromHex("#404040");
+        myPlot.Legend.FontColor = Color.FromHex("#d7d7d7");
+        myPlot.Legend.OutlineColor = Color.FromHex("#d7d7d7");
+
+        myPlot.Title("Diff temperature by height", 18);
+        myPlot.YLabel("Nivel [hPa]", 16);
+        myPlot.XLabel("dt/dh [Celsius]", 16);
+
+        var sig = myPlot.Add.SignalXY(Alturas, [.. LasDiffs]);
+        sig.Data.Rotated = true;
+        // invert the horizontal axis
+        myPlot.Axes.SetLimitsX(1, -1);
+        myPlot.SaveSvg("demo.svg", 350, 800).LaunchFile();
+
+        return Task.CompletedTask;
         /*
         DataFrame Data;
         DateTime FFinal = DateTime.MinValue, PFecha;
@@ -419,7 +439,6 @@ class Program
 
         if (File.Exists(ConString))
         {
-            Data = DataFrame.LoadCsv(ConString, cultureInfo: Usa);
             PFecha = (DateTime)Data[0, 0];
 
             if (Fecha != DateTime.MinValue && Dias != 0)
@@ -526,8 +545,27 @@ class Program
                 FInData = Data.Columns["year"].ElementwiseEquals(ElAño);
             }
         }
+
+
+
+            ReadOnlySpan<byte> utf8Json = """[0] [0,1] [0,1,1] [0,1,1,2] [0,1,1,2,3]"""u8;
+            using var stream = new MemoryStream(utf8Json.ToArray());
+            var items = JsonSerializer.DeserializeAsyncEnumerable<double>(stream, topLevelValues: true);
+
+
+            DateTimeDataFrameColumn DFFecha = new("Fecha", new[] { DateTime.Now });
+            DoubleDataFrameColumn DFLatitud = new("Latitud", values);            
+            DoubleDataFrameColumn DFLongitud = new("Longitud", values);            
+            DoubleDataFrameColumn DFLatStride = new("LatStride", values);            
+            DoubleDataFrameColumn DFLonStride = new("LonStride", values);            
+            StringDataFrameColumn DFMagnitud = new("Magnitud", ["t"]);            
+            DoubleDataFrameColumn DFNivel = new("Nivel", values);            
+            DoubleDataFrameColumn DFValor = new("Valor", values);            
+
+            MainDF = new(DFFecha, DFLatitud, DFLongitud, DFLatStride, DFLonStride, DFMagnitud, DFNivel, DFValor);
+            DataFrame.SaveCsv(MainDF, CDSDataPath, cultureInfo: Usa);
         */
-        return Task.CompletedTask;
+
     }
 }
 
