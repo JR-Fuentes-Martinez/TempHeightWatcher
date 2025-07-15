@@ -48,6 +48,7 @@ And for its implementation, data and software obtained from ERA-5 CDS (Copernicu
 JRFM - 2025
 
 ![Graph](ComDiffs20250601.svg)![Graph](ComDiffs20250604.svg)    
+![Graph](ComDiffs20250601_south.svg)![Graph](ComDiffs20250604_south.svg)    
 
 > **Attributtion on Data origin.**   
 > Copernicus Climate Change Service, Climate Data Store, (2024): ERA5 post-processed daily-statistics on pressure levels from 1940 to present. Copernicus Climate Change Service (C3S) Climate Data Store (CDS), DOI: 10.24381/cds.50314f4c (Accessed on 13-07-2025) See Conditions there.    
