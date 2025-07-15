@@ -231,7 +231,7 @@ class Program
 
             if (HTarea)
             {
-                _ = HazGraficos(FInicio, Latitud, Longitud);
+                _ = HazGraficos(FInicio.AddDays(3), Latitud, Longitud);
             }
 
             return;
@@ -393,7 +393,12 @@ class Program
 
     static Task HazGraficos(DateOnly Fecha, double Latitud, double Longitud)
     {
+        var Cultura = Thread.CurrentThread.CurrentCulture;
+        Thread.CurrentThread.CurrentCulture = Usa;
+
         IEnumerable<double> LasDiffs = [];
+        double[] Valores = [];
+        float Minimo = float.NaN, Maximo = float.NaN, HMinimo = float.NaN, HMaximo = float.NaN;
         DateTime LasFechas = DateTime.MinValue;
         var Data = DataFrame.LoadCsv(CDSDataPath, cultureInfo: Usa);
 
@@ -403,9 +408,24 @@ class Program
         foreach (var item in Data.Rows)
         {
             LasDiffs = LasDiffs.Append((float)item[9]);
-        }
-        double[] Puntos = [LasDiffs.Min(), LasDiffs.Max()];
+            var ElValor = (float)item[7];
+            var Altura = (float)item[6];
 
+            if (float.IsNaN(Minimo)) Minimo = ElValor;
+            if (float.IsNaN(Maximo)) Maximo = ElValor;
+
+            if (ElValor < Minimo)
+            {
+                Minimo = ElValor;
+                HMinimo = Altura;
+            }
+            if (ElValor > Maximo)
+            {
+                Maximo = ElValor;
+                HMaximo = Altura;
+            }            
+        }
+        
         Plot myPlot = new();
 
         // change figure colors
@@ -422,17 +442,30 @@ class Program
         myPlot.Legend.OutlineColor = Color.FromHex("#d7d7d7");
 
         myPlot.Title($"{Fecha.ToShortDateString()}  Lat:{Latitud:00.00}Lon:{Longitud:00.00}",16);
-        myPlot.YLabel("Nivel [hPa]", 16);
-        myPlot.XLabel("dT/dp [degK]", 16);
+        myPlot.XLabel("Nivel [hPa]", 16);
+        myPlot.YLabel("dT/dp [degK]", 16);
 
-        var sig = myPlot.Add.SignalXY(Alturas, [.. LasDiffs]);
+        var sig = myPlot.Add.ScatterLine(Alturas, [.. LasDiffs]);
+        //sig.Data.Rotated = true;
+        var linea1 = myPlot.Add.VerticalLine(HMinimo, 3, Colors.Blue);
+        linea1.Text = "COLD";
+        linea1.LabelOppositeAxis = true;
+        linea1.LabelFontSize = 14;
+        linea1.LabelOffsetY = 0;
+        var linea2 = myPlot.Add.VerticalLine(HMaximo, 3, Colors.Red);
+        linea2.Text = "HOT";
+        linea2.LabelOppositeAxis = true;
+        linea2.LabelFontSize = 14;
+        linea2.LabelOffsetY = 0;
+        myPlot.Axes.Top.MinimumSize = 30;
+        myPlot.Axes.Right.MinimumSize = 30;
+        myPlot.Axes.Left.MinimumSize = 30;
         //myPlot.Add.Scatter(xs: Alturas, ys: Puntos);
-        myPlot.Axes.SetLimitsY(1000, 0);
-        myPlot.Axes.SetLimitsX(-0.5, 0.8);
-        sig.Data.Rotated = true;
-        // invert the horizontal axis        
-        myPlot.SaveSvg($"ComDiffs{Fecha.ToString("yyyyMMdd")}.svg", 350, 800);
+        myPlot.Axes.SetLimitsX(0, 1013);
+        myPlot.Axes.SetLimitsY(-0.5, 0.8);        
+        myPlot.SaveSvg($"ComDiffs{Fecha.ToString("yyyyMMdd")}.svg", 800, 350);
 
+        Thread.CurrentThread.CurrentCulture = Cultura;
         return Task.CompletedTask;
         /*
         DataFrame Data;
