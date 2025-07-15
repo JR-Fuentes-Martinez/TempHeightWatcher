@@ -231,7 +231,7 @@ class Program
 
             if (HTarea)
             {
-                _ = HazGraficos(FInicio.AddDays(3), 0);
+                _ = HazGraficos(FInicio, Latitud, Longitud);
             }
 
             return;
@@ -391,7 +391,7 @@ class Program
         }
     }
 
-    static Task HazGraficos(DateOnly Fecha, int Dias)
+    static Task HazGraficos(DateOnly Fecha, double Latitud, double Longitud)
     {
         IEnumerable<double> LasDiffs = [];
         DateTime LasFechas = DateTime.MinValue;
@@ -421,17 +421,17 @@ class Program
         myPlot.Legend.FontColor = Color.FromHex("#d7d7d7");
         myPlot.Legend.OutlineColor = Color.FromHex("#d7d7d7");
 
-        myPlot.Title($"{Fecha.ToShortDateString()}",18);
+        myPlot.Title($"{Fecha.ToShortDateString()}  Lat:{Latitud:00.00}Lon:{Longitud:00.00}",16);
         myPlot.YLabel("Nivel [hPa]", 16);
         myPlot.XLabel("dT/dp [degK]", 16);
 
         var sig = myPlot.Add.SignalXY(Alturas, [.. LasDiffs]);
-        myPlot.Add.Scatter(xs: Alturas, ys: Puntos);
+        //myPlot.Add.Scatter(xs: Alturas, ys: Puntos);
         myPlot.Axes.SetLimitsY(1000, 0);
         myPlot.Axes.SetLimitsX(-0.5, 0.8);
         sig.Data.Rotated = true;
         // invert the horizontal axis        
-        myPlot.SaveSvg($"ComDiffs{Fecha.ToString("yyyyMMdd")}.svg", 350, 800).LaunchFile();
+        myPlot.SaveSvg($"ComDiffs{Fecha.ToString("yyyyMMdd")}.svg", 350, 800);
 
         return Task.CompletedTask;
         /*
