@@ -48,7 +48,7 @@ class Program
     ];
     internal static readonly double[] values = [0.0];
 
-    static async Task Main(string[] args)
+    static void Main(string[] args)
     {
         int NError = -1;
         bool DTarea = false, HTarea = false, ITarea = false;
