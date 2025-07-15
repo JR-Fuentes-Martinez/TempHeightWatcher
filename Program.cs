@@ -231,7 +231,7 @@ class Program
 
             if (HTarea)
             {
-                _ = HazGraficos(FInicio, 0);
+                _ = HazGraficos(FInicio.AddDays(3), 0);
             }
 
             return;
@@ -404,6 +404,7 @@ class Program
         {
             LasDiffs = LasDiffs.Append((float)item[9]);
         }
+        double[] Puntos = [LasDiffs.Min(), LasDiffs.Max()];
 
         Plot myPlot = new();
 
@@ -420,15 +421,17 @@ class Program
         myPlot.Legend.FontColor = Color.FromHex("#d7d7d7");
         myPlot.Legend.OutlineColor = Color.FromHex("#d7d7d7");
 
-        myPlot.Title("Diff temperature by height", 18);
+        myPlot.Title($"{Fecha.ToShortDateString()}",18);
         myPlot.YLabel("Nivel [hPa]", 16);
-        myPlot.XLabel("dt/dh [Celsius]", 16);
+        myPlot.XLabel("dT/dp [degK]", 16);
 
         var sig = myPlot.Add.SignalXY(Alturas, [.. LasDiffs]);
+        myPlot.Add.Scatter(xs: Alturas, ys: Puntos);
+        myPlot.Axes.SetLimitsY(1000, 0);
+        myPlot.Axes.SetLimitsX(-0.5, 0.8);
         sig.Data.Rotated = true;
-        // invert the horizontal axis
-        myPlot.Axes.SetLimitsX(1, -1);
-        myPlot.SaveSvg("demo.svg", 350, 800).LaunchFile();
+        // invert the horizontal axis        
+        myPlot.SaveSvg($"ComDiffs{Fecha.ToString("yyyyMMdd")}.svg", 350, 800).LaunchFile();
 
         return Task.CompletedTask;
         /*

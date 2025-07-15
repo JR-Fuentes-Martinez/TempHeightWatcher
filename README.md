@@ -47,4 +47,4 @@ And for its implementation, data and software obtained from ERA-5 CDS (Copernicu
 *"The main goal, the truth and only the truth. Meanwhile welcome to certainty."*   
 JRFM - 2025
 
-![Graph](demo.svg)
+![Graph](ComDiffs20250602.svg)![Graph](ComDiffs20250604.svg)
