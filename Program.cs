@@ -495,7 +495,7 @@ class Program
 
         for (int i = 1; i < LasDiffs.Length; i++)
         {
-            var ElColor = Colors.DarkMagenta;
+            var ElColor = Colors.Magenta;
             var Eje = myPlot.Axes.AddLeftAxis();
             Eje.LabelText = Unidades[i];
             Eje.Color(ElColor);

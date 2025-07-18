@@ -13,13 +13,13 @@
 		<rect x="144.05469" y="69.375" width="775.94531" height="215.21875"/>
 	</clipPath>
 	<g clip-path="url(#cl_4)">
-		<path fill="none" stroke="#B9D1C4" stroke-width="1" stroke-miterlimit="4" d="M144.821 141.02L145.587 270.558L146.353 214.267L147.885 190.624L149.417 190.232L151.715 167.415L159.374 148.386L167.034 151.562L182.354 146.371L197.674 145.066L220.653 152.861L239.803 135.391L258.953 126.069L278.102 151.906L297.252 155.729L316.402 153.099L335.552 149.377L373.851 148.673L412.15 149.681L450.45 147.211L488.749 143.985L527.048 140.541L565.348 140.795L603.647 142.811L641.947 144.575L680.246 142.182L718.545 160.143L737.695 161.442L756.845 155.321L775.994 149.32L795.144 133.031L814.294 122.981L833.443 129.59L852.593 107.322L871.743 109.885L890.892 83.411L910.042 141.02"/>
+		<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M144.821 141.02L145.587 270.558L146.353 214.267L147.885 190.624L149.417 190.232L151.715 167.415L159.374 148.386L167.034 151.562L182.354 146.371L197.674 145.066L220.653 152.861L239.803 135.391L258.953 126.069L278.102 151.906L297.252 155.729L316.402 153.099L335.552 149.377L373.851 148.673L412.15 149.681L450.45 147.211L488.749 143.985L527.048 140.541L565.348 140.795L603.647 142.811L641.947 144.575L680.246 142.182L718.545 160.143L737.695 161.442L756.845 155.321L775.994 149.32L795.144 133.031L814.294 122.981L833.443 129.59L852.593 107.322L871.743 109.885L890.892 83.411L910.042 141.02"/>
 	</g>
 	<clipPath id="cl_5">
 		<rect x="144.05469" y="69.375" width="775.94531" height="215.21875"/>
 	</clipPath>
 	<g clip-path="url(#cl_5)">
-		<path fill="none" stroke="#8E348F" stroke-width="1" stroke-miterlimit="4" d="M144.821 199.106L145.587 199.114L146.353 199.075L147.885 199.278L149.417 198.449L151.715 197.946L159.374 199.664L167.034 197.974L182.354 200.939L197.674 193.223L220.653 225.198L239.803 108.492L258.953 83.411L278.102 261.81L297.252 270.558L316.402 233.365L335.552 227.013L373.851 209.811L412.15 206.101L450.45 201.808L488.749 200.652L527.048 199.572L565.348 199.896L603.647 199.797L641.947 199.184L680.246 199.129L718.545 199.106L737.695 198.924L756.845 199.612L775.994 198.742L795.144 197.957L814.294 198.865L833.443 199.003L852.593 199.195L871.743 199.135L890.892 199.232L910.042 199.106"/>
+		<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M144.821 199.106L145.587 199.114L146.353 199.075L147.885 199.278L149.417 198.449L151.715 197.946L159.374 199.664L167.034 197.974L182.354 200.939L197.674 193.223L220.653 225.198L239.803 108.492L258.953 83.411L278.102 261.81L297.252 270.558L316.402 233.365L335.552 227.013L373.851 209.811L412.15 206.101L450.45 201.808L488.749 200.652L527.048 199.572L565.348 199.896L603.647 199.797L641.947 199.184L680.246 199.129L718.545 199.106L737.695 198.924L756.845 199.612L775.994 198.742L795.144 197.957L814.294 198.865L833.443 199.003L852.593 199.195L871.743 199.135L890.892 199.232L910.042 199.106"/>
 	</g>
 	<clipPath id="cl_6">
 		<rect x="144.05469" y="69.375" width="775.94531" height="215.21875"/>
@@ -249,39 +249,39 @@
 	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M144.055 73.8414L142.055 73.8414"/>
 	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M144.055 284.594L144.055 69.375"/>
 	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M920 284.594L920 69.375"/>
-	<text fill="#8E348F" transform="matrix(0 -1 1 0 4 176.984)" font-size="16" font-weight="600" font-family="Khmer Mondulkiri" x="-53.230469, -44.261719, -35.363281, -25.832031, -16.863281, -7.8789062, 1.4960938, 7.5117188, 16.074219, 25.605469, 38.652344, 47.214844, " y="14.8125, ">
+	<text fill="fuchsia" transform="matrix(0 -1 1 0 4 176.984)" font-size="16" font-weight="600" font-family="Khmer Mondulkiri" x="-53.230469, -44.261719, -35.363281, -25.832031, -16.863281, -7.8789062, 1.4960938, 7.5117188, 16.074219, 25.605469, 38.652344, 47.214844, " y="14.8125, ">
 			dq/dp [g/Kg]
 	</text>
-	<path fill="none" stroke="#8E348F" stroke-width="1" stroke-miterlimit="4" d="M78.3555 261.51L74.3555 261.51"/>
-	<text fill="#8E348F" transform="translate(69.3555 261.51)" font-size="12" font-family="Khmer Mondulkiri" x="-34.980469, -28.828125, -22.5, -18.984375, -12.65625, -6.328125, " y="0.0234375, ">
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M78.3555 261.51L74.3555 261.51"/>
+	<text fill="fuchsia" transform="translate(69.3555 261.51)" font-size="12" font-family="Khmer Mondulkiri" x="-34.980469, -28.828125, -22.5, -18.984375, -12.65625, -6.328125, " y="0.0234375, ">
 			-0.002
 	</text>
-	<path fill="none" stroke="#8E348F" stroke-width="1" stroke-miterlimit="4" d="M78.3555 199.106L74.3555 199.106"/>
-	<text fill="#8E348F" transform="translate(69.3555 199.106)" font-size="12" font-family="Khmer Mondulkiri" x="-6.328125, " y="0.0234375, ">
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M78.3555 199.106L74.3555 199.106"/>
+	<text fill="fuchsia" transform="translate(69.3555 199.106)" font-size="12" font-family="Khmer Mondulkiri" x="-6.328125, " y="0.0234375, ">
 			0
 	</text>
-	<path fill="none" stroke="#8E348F" stroke-width="1" stroke-miterlimit="4" d="M78.3555 136.702L74.3555 136.702"/>
-	<text fill="#8E348F" transform="translate(69.3555 136.702)" font-size="12" font-family="Khmer Mondulkiri" x="-28.828125, -22.5, -18.984375, -12.65625, -6.328125, " y="0.0234375, ">
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M78.3555 136.702L74.3555 136.702"/>
+	<text fill="fuchsia" transform="translate(69.3555 136.702)" font-size="12" font-family="Khmer Mondulkiri" x="-28.828125, -22.5, -18.984375, -12.65625, -6.328125, " y="0.0234375, ">
 			0.002
 	</text>
-	<path fill="none" stroke="#8E348F" stroke-width="1" stroke-miterlimit="4" d="M78.3555 74.2984L74.3555 74.2984"/>
-	<text fill="#8E348F" transform="translate(69.3555 74.2984)" font-size="12" font-family="Khmer Mondulkiri" x="-28.828125, -22.5, -18.984375, -12.65625, -6.328125, " y="0.0234375, ">
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M78.3555 74.2984L74.3555 74.2984"/>
+	<text fill="fuchsia" transform="translate(69.3555 74.2984)" font-size="12" font-family="Khmer Mondulkiri" x="-28.828125, -22.5, -18.984375, -12.65625, -6.328125, " y="0.0234375, ">
 			0.004
 	</text>
-	<path fill="none" stroke="#8E348F" stroke-width="1" stroke-miterlimit="4" d="M78.3555 273.99L76.3555 273.99"/>
-	<path fill="none" stroke="#8E348F" stroke-width="1" stroke-miterlimit="4" d="M78.3555 249.029L76.3555 249.029"/>
-	<path fill="none" stroke="#8E348F" stroke-width="1" stroke-miterlimit="4" d="M78.3555 236.548L76.3555 236.548"/>
-	<path fill="none" stroke="#8E348F" stroke-width="1" stroke-miterlimit="4" d="M78.3555 224.067L76.3555 224.067"/>
-	<path fill="none" stroke="#8E348F" stroke-width="1" stroke-miterlimit="4" d="M78.3555 211.587L76.3555 211.587"/>
-	<path fill="none" stroke="#8E348F" stroke-width="1" stroke-miterlimit="4" d="M78.3555 186.625L76.3555 186.625"/>
-	<path fill="none" stroke="#8E348F" stroke-width="1" stroke-miterlimit="4" d="M78.3555 174.144L76.3555 174.144"/>
-	<path fill="none" stroke="#8E348F" stroke-width="1" stroke-miterlimit="4" d="M78.3555 161.664L76.3555 161.664"/>
-	<path fill="none" stroke="#8E348F" stroke-width="1" stroke-miterlimit="4" d="M78.3555 149.183L76.3555 149.183"/>
-	<path fill="none" stroke="#8E348F" stroke-width="1" stroke-miterlimit="4" d="M78.3555 124.221L76.3555 124.221"/>
-	<path fill="none" stroke="#8E348F" stroke-width="1" stroke-miterlimit="4" d="M78.3555 111.741L76.3555 111.741"/>
-	<path fill="none" stroke="#8E348F" stroke-width="1" stroke-miterlimit="4" d="M78.3555 99.2599L76.3555 99.2599"/>
-	<path fill="none" stroke="#8E348F" stroke-width="1" stroke-miterlimit="4" d="M78.3555 86.7791L76.3555 86.7791"/>
-	<path fill="none" stroke="#8E348F" stroke-width="1" stroke-miterlimit="4" d="M78.3555 284.594L78.3555 69.375"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M78.3555 273.99L76.3555 273.99"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M78.3555 249.029L76.3555 249.029"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M78.3555 236.548L76.3555 236.548"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M78.3555 224.067L76.3555 224.067"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M78.3555 211.587L76.3555 211.587"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M78.3555 186.625L76.3555 186.625"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M78.3555 174.144L76.3555 174.144"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M78.3555 161.664L76.3555 161.664"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M78.3555 149.183L76.3555 149.183"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M78.3555 124.221L76.3555 124.221"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M78.3555 111.741L76.3555 111.741"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M78.3555 99.2599L76.3555 99.2599"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M78.3555 86.7791L76.3555 86.7791"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M78.3555 284.594L78.3555 69.375"/>
 	<text fill="#D7D7D7" transform="translate(532.027 39.375)" font-size="16" font-weight="600" font-family="Khmer Mondulkiri" x="-181.53125, -166.08594, -157.25, -147.96875, -139, -130.96875, -122.19531, -117.75, -108.375, -99.34375, -90.304688, -80.929688, -73.867188, -64.640625, -55.359375, -47.117188, -37.742188, -28.703125, -19.671875, -10.632812, -2.1015625, 16.648438, 27.15625, 35.1875, 40.695312, 47.335938, 55.539062, 64.296875, 73.328125, 78.015625, 87.046875, 96.078125, 105.45312, 115.96094, 124.79688, 134.07812, 140.71875, 149.75, 158.78125, 163.46875, 172.5, " y="-14.5625, ">
 			Monday, 02 June 2025 Lat:-90.00 Lon:00.00
 	</text>
