@@ -24,14 +24,15 @@ class Program
 {
     private static DateOnly FInicio = DateOnly.MinValue;
     private static DateOnly FFinal = DateOnly.MinValue;
+    private const int NumDataSignalsForDataframes = 2;  //temperature, specific humidity
     private static int SDias = 0;
     private static readonly CultureInfo Usa = new("");
     private static readonly string Directorio =
     $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/Documentos/CDSData";
     private static readonly string CDSDataPath = $"{Directorio}/CdsData.csv";
     private static readonly SqliteConnection DbConn = new($"Data Source={Directorio}/CdsData.sqlite;");
-    private static DataFrame DFTemp = new();
-    private static readonly double[] Alturas = [
+    private static readonly DataFrame[] DFTemps = new DataFrame[NumDataSignalsForDataframes];
+    private static double[] Alturas = [
         1.0, 2.0, 3.0,
         5.0, 7.0, 10.0,
         20, 30, 50,
@@ -132,106 +133,129 @@ class Program
             }
 
             var MainDF = DataFrame.LoadCsv(CDSDataPath, cultureInfo: Usa);
-            DFTemp = MainDF.Filter(MainDF["Latitud"].ElementwiseEquals(Latitud));
+            var DFTemp = MainDF.Filter(MainDF["Latitud"].ElementwiseEquals(Latitud));
             DFTemp = DFTemp.Filter(DFTemp["Longitud"].ElementwiseEquals(Longitud));
-            DFTemp = DFTemp.Filter(DFTemp["Magnitud"].ElementwiseEquals("t"));
-            DFTemp = DFTemp.Filter(DFTemp["Fecha"].ElementwiseGreaterThanOrEqual(FechaToNum(LastFecha)));
+            DFTemp = DFTemp.Filter(DFTemp["Fecha"].ElementwiseGreaterThanOrEqual(FechaToNum(FInicio)));
             DFTemp = DFTemp.Filter(DFTemp["Fecha"].ElementwiseLessThanOrEqual(FechaToNum(FinWork)));
 
             if (DTarea)
             {
-                using var SScript = File.OpenText("piton/Main_temp.py");
-                string SGScript = SScript.ReadToEnd();
-                SScript.Close();
+                bool Terminado = false;
 
-                DateOnly FBucle = LastFecha.AddDays(1);
-                var StrMeses = string.Empty;
-                var StrAños = string.Empty;
-                var StrDias = string.Empty;
-                var Area = string.Empty;
-                StringBuilder StbDias = new(1, 1024);
-
-                if (FInicio == DateOnly.MinValue || Estado == 1)
+                for (int q = 0; q < NumDataSignalsForDataframes; q++)
                 {
-                    if (Estado == 1)
+                    string NScript = string.Empty;
+                    string NMagnitud = string.Empty;
+                    Terminado = false;
+
+                    if (q == 0)
                     {
-                        Console.WriteLine("El trabajo ya está terminado en la Db.");
-                        Console.WriteLine($"Info: Lá ultima fecha descargada es de {LastFecha.ToShortDateString()} para el trabajo {NomTrabajo}");
+                        NScript = "piton/Main_temp.py";
+                        NMagnitud = "t";
                     }
                     else
                     {
-                        Console.WriteLine("No se ha encontrado el trabajo en la Db.");
+                        NScript = "piton/Main_sphum.py";
+                        NMagnitud = "q";
                     }
-                    return;
-                }
-                FFinal = LastFecha.AddDays(SDias);
 
-                while (FBucle <= FFinal)
-                {
-                    StrAños = $"{FBucle.Year:0000}";
-                    var ElAño = FBucle.Year;
+                    DFTemps[q] = DFTemp.Filter(DFTemp["Magnitud"].ElementwiseEquals(NMagnitud));
 
-                    while (FBucle.Year == ElAño)
+                    using var SScript = File.OpenText(NScript);
+                    string SGScript = SScript.ReadToEnd();
+                    SScript.Close();
+
+                    DateOnly FBucle = FInicio.AddDays(1);
+                    var StrMeses = string.Empty;
+                    var StrAños = string.Empty;
+                    var StrDias = string.Empty;
+                    var Area = string.Empty;
+                    StringBuilder StbDias = new(1, 1024);
+
+                    if (FInicio == DateOnly.MinValue || Estado == 1)
                     {
-                        var ElMes = FBucle.Month;
-                        StbDias = StbDias.Append('[');
-                        StrMeses = $"[\"{FBucle.Month:00}\"]";
-                        bool Conmuta = false;
-
-                        while (FBucle.Month == ElMes)
+                        if (Estado == 1)
                         {
-                            if (!DFTemp.Columns["Fecha"].ElementwiseEquals(FechaToNum(FBucle)).Any())
-                            {
-                                StbDias = StbDias.Append($"\"{FBucle.Day:00}\",");
+                            Console.WriteLine("El trabajo ya está terminado en la Db.");
+                            Console.WriteLine($"Info: Lá ultima fecha descargada es de {LastFecha.ToShortDateString()} para el trabajo {NomTrabajo}");
+                        }
+                        else
+                        {
+                            Console.WriteLine("No se ha encontrado el trabajo en la Db.");
+                        }
+                        return;
+                    }
+                    FFinal = LastFecha.AddDays(SDias);
+                    if (FFinal > FinWork) FFinal = FinWork;
 
-                                if (!Conmuta)
+                    while (FBucle <= FFinal)
+                    {
+                        StrAños = $"{FBucle.Year:0000}";
+                        var ElAño = FBucle.Year;
+
+                        while (FBucle.Year == ElAño)
+                        {
+                            var ElMes = FBucle.Month;
+                            StbDias = StbDias.Append('[');
+                            StrMeses = $"[\"{FBucle.Month:00}\"]";
+                            bool Conmuta = false;
+
+                            while (FBucle.Month == ElMes)
+                            {
+                                if (!DFTemp.Columns["Fecha"].ElementwiseEquals(FechaToNum(FBucle)).Any())
                                 {
-                                    FirstFecha = FBucle;
-                                    Conmuta = true;
+                                    StbDias = StbDias.Append($"\"{FBucle.Day:00}\",");
+
+                                    if (!Conmuta)
+                                    {
+                                        FirstFecha = FBucle;
+                                        Conmuta = true;
+                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"La fecha {FBucle.ToShortDateString()} para {NMagnitud} ya está en la Db.");
+                                }
+                                FBucle = FBucle.AddDays(1);
+
+                                if (FBucle > FFinal || FBucle > FinWork)
+                                {
+                                    if (q == 1) LastFecha = FBucle.AddDays(-1);
+                                    break;
                                 }
                             }
-                            else
+
+                            if (StbDias.Length > 1)
                             {
-                                Console.WriteLine($"La fecha {FBucle.ToShortDateString()} ya está en la Db.");
+                                StbDias.Remove(StbDias.Length - 1, 1);
+                                StbDias = StbDias.Append(']');
+                                StrDias = StbDias.ToString().Trim();
+
+                                _ = DescargaDatos(StrDias, StrMeses, StrAños, SGScript, Latitud, Longitud, FirstFecha, NMagnitud, q);
                             }
+                            StbDias = StbDias.Clear();
 
-                            FBucle = FBucle.AddDays(1);
-                            if (FBucle > FFinal || FBucle > FinWork)
-                            {
-                                LastFecha = FBucle.AddDays(-1);
-                                break;
-                            }
-                        }
-                        if (StbDias.Length > 1)
-                        {
-                            StbDias.Remove(StbDias.Length - 1, 1);
-                            StbDias = StbDias.Append(']');
-                            StrDias = StbDias.ToString().Trim();
-
-                            _ = DescargaDatos(StrDias, StrMeses, StrAños, SGScript, Latitud, Longitud, FirstFecha);
-                        }
-                        StbDias = StbDias.Clear();
-
-                        if (FBucle > FinWork)
-                        {
-                            Console.WriteLine("El trabajo de descarga se ha terminado.");
-                            DbComando.CommandText = $"UPDATE CdsWorks SET Estado=1,FechaUltima='{FinWork:yyyy-MM-dd}' WHERE [NombreId]='{NomTrabajo}';";
-                            DbComando.ExecuteNonQuery();
-                            return;
-                        }
-                        if (FBucle > FFinal)
-                        {
-                            DbComando.CommandText = $"UPDATE CdsWorks SET FechaUltima='{LastFecha:yyyy-MM-dd}' WHERE [NombreId]='{NomTrabajo}';";
-                            DbComando.ExecuteNonQuery();
-                            break;
+                            if (FBucle > FinWork || FBucle > FFinal) break;
                         }
                     }
+                    if (FBucle > FinWork) Terminado = true;
                 }
+
+                if (Terminado)
+                {
+                    Console.WriteLine("El trabajo de descarga se ha terminado.");
+                    DbComando.CommandText = $"UPDATE CdsWorks SET Estado=1,FechaUltima='{FinWork:yyyy-MM-dd}' WHERE [NombreId]='{NomTrabajo}';";
+                }
+                else
+                {
+                    DbComando.CommandText = $"UPDATE CdsWorks SET FechaUltima='{LastFecha:yyyy-MM-dd}' WHERE [NombreId]='{NomTrabajo}';";
+                }
+                DbComando.ExecuteNonQuery();
             }
 
             if (HTarea)
             {
-                _ = HazGraficos(FInicio.AddDays(3), Latitud, Longitud);
+                _ = HazGraficos(FInicio.AddDays(1), Latitud, Longitud, ["t", "q"], ["dT/dp [degK]", "dq/dp [g/Kg]"]);
             }
 
             return;
@@ -265,7 +289,9 @@ class Program
         return DateOnly.FromDateTime(DateTime.UnixEpoch.AddDays(Numero));
     }
 
-    static Task DescargaDatos(string Dias, string Meses, string Años, string SGScript, double Latitud, double Longitud, DateOnly Fecha)
+    static Task DescargaDatos(
+        string Dias, string Meses, string Años, string SGScript, double Latitud,
+         double Longitud, DateOnly Fecha, string Magnitud, int IDDframe)
     {
         var Cultura = Thread.CurrentThread.CurrentCulture;
         Thread.CurrentThread.CurrentCulture = Usa;
@@ -337,7 +363,7 @@ class Program
             }
 
             DataSet CDSData = DataSet.Open($"msds:nc?file={RutaNc}&openMode=readOnly");
-            var Temps = CDSData.GetData<float[,,,]>("t");
+            var Temps = CDSData.GetData<float[,,,]>(Magnitud);
             var TransFecha = CDSData.GetData<long[]>("valid_time");
             DateOnly LaFecha = DateOnly.MinValue;
             IEnumerable<DateOnly> FFechas = [];
@@ -360,12 +386,12 @@ class Program
                 for (int j = 0; j < Temps.GetLength(1); j++) //Altura - 37 niveles
                 {
                     var TTempo = TempsByH.ToArray();
-                    IEnumerable<object> Fila = [FechaToNum(LaFecha), Latitud, Longitud, 0.0, 0.0, "t", Alturas[j], TTempo[j], Valores[j], Diffs[j]];
-                    DFTemp = DFTemp.Append(Fila, true);
+                    IEnumerable<object> Fila = [FechaToNum(LaFecha), Latitud, Longitud, 0.0, 0.0, Magnitud, Alturas[j], TTempo[j], Valores[j], Diffs[j]];
+                    DFTemps[IDDframe] = DFTemps[IDDframe].Append(Fila, true);
                 }
             }
             var MainDF = DataFrame.LoadCsv(CDSDataPath, cultureInfo: Usa);
-            MainDF = MainDF.Append(DFTemp.Rows, true);
+            MainDF = MainDF.Append(DFTemps[IDDframe].Rows, true);
             MainDF = MainDF.OrderBy("Fecha");
             DataFrame.SaveCsv(MainDF, CDSDataPath, cultureInfo: Usa);
 
@@ -391,41 +417,60 @@ class Program
         }
     }
 
-    static Task HazGraficos(DateOnly Fecha, double Latitud, double Longitud)
+    static Task HazGraficos(DateOnly Fecha, double Latitud, double Longitud, string[] Magnitudes, string[] Unidades)
     {
         var Cultura = Thread.CurrentThread.CurrentCulture;
-        Thread.CurrentThread.CurrentCulture = Usa;
-
-        IEnumerable<double> LasDiffs = [];
-        double[] Valores = [];
-        float Minimo = float.NaN, Maximo = float.NaN, HMinimo = float.NaN, HMaximo = float.NaN;
-        DateTime LasFechas = DateTime.MinValue;
+        Thread.CurrentThread.CurrentCulture = Usa;        
+        
         var Data = DataFrame.LoadCsv(CDSDataPath, cultureInfo: Usa);
+        var LasDiffs = new IEnumerable<double>[Magnitudes.Length];
+
+        for (int i = 0; i < LasDiffs.Length; i++)
+        {
+            LasDiffs[i] = [];
+        }        
+        var Datas = new DataFrame[Magnitudes.Length];
+        float Minimo = float.NaN, Maximo = float.NaN, HMinimo = float.NaN, HMaximo = float.NaN;
 
         Data = Data.Filter(Data["Fecha"].ElementwiseEquals(FechaToNum(Fecha)));
         Data = Data.OrderBy("Nivel");
+        int Multiplo;
 
-        foreach (var item in Data.Rows)
+        for (int i = 0; i < Magnitudes.Length; i++)
         {
-            LasDiffs = LasDiffs.Append((float)item[9]);
-            var ElValor = (float)item[7];
-            var Altura = (float)item[6];
+            Datas[i] = Data.Filter(Data["Magnitud"].ElementwiseEquals(Magnitudes[i]));
 
-            if (float.IsNaN(Minimo)) Minimo = ElValor;
-            if (float.IsNaN(Maximo)) Maximo = ElValor;
-
-            if (ElValor < Minimo)
+            foreach (var item in Datas[i].Rows)
             {
-                Minimo = ElValor;
-                HMinimo = Altura;
+                if (Magnitudes[i].Contains('q', StringComparison.CurrentCultureIgnoreCase)) Multiplo = 1000;
+                else Multiplo = 1;
+
+                LasDiffs[i] = LasDiffs[i].Append((float)item[9] * Multiplo);
+
+                if (Magnitudes[i].Contains('t', StringComparison.CurrentCultureIgnoreCase))
+                {
+                    var ElValor = (float)item[7];
+                    var Altura = (float)item[6];
+
+                    if (float.IsNaN(Minimo)) Minimo = ElValor;
+                    if (float.IsNaN(Maximo)) Maximo = ElValor;
+
+                    if (ElValor < Minimo)
+                    {
+                        Minimo = ElValor;
+                        HMinimo = Altura;
+                    }
+                    if (ElValor > Maximo)
+                    {
+                        Maximo = ElValor;
+                        HMaximo = Altura;
+                    }
+                }
             }
-            if (ElValor > Maximo)
-            {
-                Maximo = ElValor;
-                HMaximo = Altura;
-            }            
+            LasDiffs[i] = LasDiffs[i].Skip(10);
         }
-        
+        Alturas = [.. Alturas.Skip(10)];
+
         Plot myPlot = new();
 
         // change figure colors
@@ -441,13 +486,22 @@ class Program
         myPlot.Legend.FontColor = Color.FromHex("#d7d7d7");
         myPlot.Legend.OutlineColor = Color.FromHex("#d7d7d7");
 
-        myPlot.Title($"{Fecha.ToShortDateString()}  Lat:{Latitud:00.00}Lon:{Longitud:00.00}",16);
-        myPlot.XLabel("Nivel [hPa]", 16);
+        myPlot.Title($"{Fecha.ToLongDateString()}  Lat:{Latitud:00.00} Lon:{Longitud:00.00}", 16);
+        myPlot.XLabel("Pressure Level [hPa]", 16);
         myPlot.YLabel("dT/dp [degK]", 16);
+        myPlot.Add.ScatterLine(Alturas, [.. LasDiffs[0]], Generate.RandomColor());
 
-        var sig = myPlot.Add.ScatterLine(Alturas, [.. LasDiffs]);
+        for (int i = 1; i < LasDiffs.Length; i++)
+        {
+            var Eje = myPlot.Axes.AddLeftAxis();
+            Eje.LabelText = Unidades[i];
+            Eje.Color(Color.FromHex("#d7d7d7"));
+            Eje.LabelFontSize = 16;
+            var ff = myPlot.Add.ScatterLine(Alturas, [.. LasDiffs[i]], Generate.RandomColor());
+            ff.Axes.YAxis = Eje;
+        }        
         //sig.Data.Rotated = true;
-        var linea1 = myPlot.Add.VerticalLine(HMinimo, 3, Colors.Blue);
+        var linea1 = myPlot.Add.VerticalLine(HMinimo, 3, Colors.DarkBlue);
         linea1.Text = "COLD";
         linea1.LabelOppositeAxis = true;
         linea1.LabelFontSize = 14;
@@ -457,133 +511,21 @@ class Program
         linea2.LabelOppositeAxis = true;
         linea2.LabelFontSize = 14;
         linea2.LabelOffsetY = 0;
+
         myPlot.Axes.Top.MinimumSize = 30;
         myPlot.Axes.Right.MinimumSize = 30;
         myPlot.Axes.Left.MinimumSize = 30;
+
         //myPlot.Add.Scatter(xs: Alturas, ys: Puntos);
-        myPlot.Axes.SetLimitsX(0, 1013);
-        myPlot.Axes.SetLimitsY(-0.5, 0.8);        
-        myPlot.SaveSvg($"ComDiffs{Fecha.ToString("yyyyMMdd")}.svg", 800, 350);
+        myPlot.Axes.SetLimitsX(100, 1013);
+        //myPlot.Axes.SetLimitsY(-0.5, 0.8);
+        myPlot.SaveSvg($"ComDiffs{Fecha.ToString("yyyyMMdd")}.svg", 950, 350);
 
         Thread.CurrentThread.CurrentCulture = Cultura;
-        return Task.CompletedTask;
+
+        return Task.CompletedTask;        
+
         /*
-        DataFrame Data;
-        DateTime FFinal = DateTime.MinValue, PFecha;
-
-        Thread.CurrentThread.CurrentCulture = Usa;
-
-        if (File.Exists(ConString))
-        {
-            PFecha = (DateTime)Data[0, 0];
-
-            if (Fecha != DateTime.MinValue && Dias != 0)
-            {
-                Fecha.AddHours(PFecha.Hour);
-                FFinal = Fecha.AddDays(Dias);
-            }
-        }
-        else
-        {
-            Console.WriteLine("No se encuentra el fichero de datos en disco.");
-            return Task.CompletedTask;
-        }
-
-        for (int j = 0; j < 2; j++)
-        {
-            float Lat;
-            float ElAño;
-
-            if (j == 0) Lat = 90.0f;
-            else Lat = -90.0f;
-
-            ElAño = PFecha.Year;
-
-            var FInData = Data.Columns["year"].ElementwiseEquals(ElAño);
-
-            if (!FInData.Any())
-            {
-                Console.WriteLine("No se ha encontrado el año de la fecha introducida");
-                break;
-            }
-
-            while (FInData.Any())
-            {
-                var Data3 = Data.Filter(FInData);
-                bool Adelante = false;
-
-                if (Fecha != DateTime.MinValue && Dias != 0)
-                {
-                    var IsFecha = Data3.Columns["time"].ElementwiseGreaterThanOrEqual(Fecha);
-
-                    if (IsFecha.Any())
-                    {
-                        Data3 = Data3.Filter(IsFecha);
-                        Adelante = true;
-                    }
-
-                    IsFecha = Data3.Columns["time"].ElementwiseLessThanOrEqual(FFinal);
-
-                    if (IsFecha.Any())
-                    {
-                        Data3 = Data3.Filter(IsFecha);
-                        Adelante = true;
-                    }
-
-                    if (!Adelante)
-                    {
-                        Console.WriteLine("No se ha encontrado registros en las fechas. Mostrando todos los registros.");
-                    }
-                }
-
-                Data3 = Data3.Filter(Data3.Columns[@"latitude[unit=""degrees_north""]"].ElementwiseEquals(Lat));
-                DataFrame DataBucle;
-                Multiplot multiplot = new();
-                multiplot.AddPlots(Alturas.Length);
-
-                for (int i = 0; i < Alturas.Length; i++)
-                {
-                    DataBucle = Data3.Filter(Data3.Columns[@"vertCoord[unit=""Pa""]"].ElementwiseEquals(Alturas[i]));
-                    IEnumerable<double> Temps = [];
-                    IEnumerable<double> Abscisas = [];
-                    List<string> Fechas = [];
-                    int Indice = 0;
-
-                    foreach (var item in DataBucle.Columns[7])
-                    {
-                        var LaFecha = (DateTime)Data[Indice, 0];
-                        Fechas.Add(LaFecha.ToString("yyyy-MM-dd"));
-                        var Numero = (float)item;
-                        Temps = Temps.Append((double)Numero);
-                        Abscisas = Abscisas.Append(Indice);
-                        Indice++;
-                    }
-                    alglib.spline1dconvdiffcubic([.. Abscisas], [.. Temps], [.. Abscisas], out double[] Valores, out double[] Diffs);
-
-                    //Grafico.HideGrid();
-                    var Grafico = multiplot.GetPlot(i);
-                    var señal = Grafico.Add.Signal(Diffs);
-                    Grafico.YLabel($"{Alturas[i]}Pa");
-                    //Grafico.Axes.Bottom.MajorTickStyle.Length = 0;
-                    Grafico.Axes.Bottom.TickGenerator = new ScottPlot.TickGenerators.NumericManual([.. Abscisas], [.. Fechas]);
-                    Grafico.SaveSvg($"/home/jr-fuentes-martinez/Documentos/Phoenix Code/FrontHtml/result_{ElAño}-({Lat}).svg", 1200, 250);
-                }
-                //multiplot.SavePng($"Graficos/result_{ElAño}-({Lat}).png", 800, 1100);
-
-                //Grafico.SaveSvg($"Graficos/result_{ElAño}-{Lat}.svg", 800, 400);
-                if (Fecha != DateTime.MinValue && Dias != 0)
-                {
-                    Fecha = Fecha.AddYears(-1);
-                    FFinal = FFinal.AddYears(-1);
-                    PFecha = PFecha.AddYears(-1);
-                }
-                ElAño--;
-                FInData = Data.Columns["year"].ElementwiseEquals(ElAño);
-            }
-        }
-
-
-
             ReadOnlySpan<byte> utf8Json = """[0] [0,1] [0,1,1] [0,1,1,2] [0,1,1,2,3]"""u8;
             using var stream = new MemoryStream(utf8Json.ToArray());
             var items = JsonSerializer.DeserializeAsyncEnumerable<double>(stream, topLevelValues: true);
