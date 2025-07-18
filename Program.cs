@@ -519,6 +519,7 @@ class Program
         //myPlot.Add.Scatter(xs: Alturas, ys: Puntos);
         myPlot.Axes.SetLimitsX(100, 1013);
         //myPlot.Axes.SetLimitsY(-0.5, 0.8);
+        
         myPlot.SaveSvg($"ComDiffs{Fecha.ToString("yyyyMMdd")}.svg", 950, 350);
 
         Thread.CurrentThread.CurrentCulture = Cultura;
