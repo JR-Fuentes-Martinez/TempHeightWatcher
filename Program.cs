@@ -433,6 +433,8 @@ class Program
         float Minimo = float.NaN, Maximo = float.NaN, HMinimo = float.NaN, HMaximo = float.NaN;
 
         Data = Data.Filter(Data["Fecha"].ElementwiseEquals(FechaToNum(Fecha)));
+        Data = Data.Filter(Data["Latitud"].ElementwiseEquals(Latitud));
+        Data = Data.Filter(Data["Longitud"].ElementwiseEquals(Longitud));
         Data = Data.OrderBy("Nivel");
         int Multiplo;
 
@@ -460,16 +462,16 @@ class Program
                         Minimo = ElValor;
                         HMinimo = Altura;
                     }
-                    if (ElValor > Maximo)
+                    if (ElValor >= Maximo)
                     {
                         Maximo = ElValor;
                         HMaximo = Altura;
                     }
                 }
             }
-            LasDiffs[i] = LasDiffs[i].Skip(10);
+            //LasDiffs[i] = LasDiffs[i].Skip(10);
         }
-        Alturas = [.. Alturas.Skip(10)];
+        //Alturas = [.. Alturas.Skip(10)];
 
         Plot myPlot = new();
 
@@ -488,26 +490,28 @@ class Program
 
         myPlot.Title($"{Fecha.ToLongDateString()}  Lat:{Latitud:00.00} Lon:{Longitud:00.00}", 16);
         myPlot.XLabel("Pressure Level [hPa]", 16);
-        myPlot.YLabel("dT/dp [degK]", 16);
-        myPlot.Add.ScatterLine(Alturas, [.. LasDiffs[0]], Generate.RandomColor());
+        myPlot.YLabel(Unidades[0], 16);
+        myPlot.Add.ScatterLine(Alturas, [.. LasDiffs[0]], Color.FromHex("#d7d7d7"));
 
         for (int i = 1; i < LasDiffs.Length; i++)
         {
+            var ElColor = Colors.DarkMagenta;
             var Eje = myPlot.Axes.AddLeftAxis();
             Eje.LabelText = Unidades[i];
-            Eje.Color(Color.FromHex("#d7d7d7"));
+            Eje.Color(ElColor);
             Eje.LabelFontSize = 16;
-            var ff = myPlot.Add.ScatterLine(Alturas, [.. LasDiffs[i]], Generate.RandomColor());
+            var ff = myPlot.Add.ScatterLine(Alturas, [.. LasDiffs[i]], ElColor);
             ff.Axes.YAxis = Eje;
         }        
-        //sig.Data.Rotated = true;
+        
         var linea1 = myPlot.Add.VerticalLine(HMinimo, 3, Colors.DarkBlue);
-        linea1.Text = "COLD";
+        linea1.Text = "COLDest";
         linea1.LabelOppositeAxis = true;
         linea1.LabelFontSize = 14;
         linea1.LabelOffsetY = 0;
+
         var linea2 = myPlot.Add.VerticalLine(HMaximo, 3, Colors.Red);
-        linea2.Text = "HOT";
+        linea2.Text = "HOTest";
         linea2.LabelOppositeAxis = true;
         linea2.LabelFontSize = 14;
         linea2.LabelOffsetY = 0;
@@ -516,35 +520,19 @@ class Program
         myPlot.Axes.Right.MinimumSize = 30;
         myPlot.Axes.Left.MinimumSize = 30;
 
-        //myPlot.Add.Scatter(xs: Alturas, ys: Puntos);
-        myPlot.Axes.SetLimitsX(100, 1013);
-        //myPlot.Axes.SetLimitsY(-0.5, 0.8);
-        
-        myPlot.SaveSvg($"ComDiffs{Fecha.ToString("yyyyMMdd")}.svg", 950, 350);
+        myPlot.Axes.SetLimitsX(0, 1013);
+
+        var SignoLat = string.Empty;
+        var SignoLon = string.Empty;
+
+        if (Latitud < 0) SignoLat = "N"; else SignoLat = "P";
+        if (Longitud < 0) SignoLon = "N"; else SignoLon = "P";
+
+        myPlot.SaveSvg($"Graficos/ComDiffs{Fecha.ToString("yyyyMMdd")}{SignoLat}{double.Abs(Latitud):00}{SignoLon}{double.Abs(Longitud):00}.svg", 950, 350);
 
         Thread.CurrentThread.CurrentCulture = Cultura;
 
-        return Task.CompletedTask;        
-
-        /*
-            ReadOnlySpan<byte> utf8Json = """[0] [0,1] [0,1,1] [0,1,1,2] [0,1,1,2,3]"""u8;
-            using var stream = new MemoryStream(utf8Json.ToArray());
-            var items = JsonSerializer.DeserializeAsyncEnumerable<double>(stream, topLevelValues: true);
-
-
-            DateTimeDataFrameColumn DFFecha = new("Fecha", new[] { DateTime.Now });
-            DoubleDataFrameColumn DFLatitud = new("Latitud", values);            
-            DoubleDataFrameColumn DFLongitud = new("Longitud", values);            
-            DoubleDataFrameColumn DFLatStride = new("LatStride", values);            
-            DoubleDataFrameColumn DFLonStride = new("LonStride", values);            
-            StringDataFrameColumn DFMagnitud = new("Magnitud", ["t"]);            
-            DoubleDataFrameColumn DFNivel = new("Nivel", values);            
-            DoubleDataFrameColumn DFValor = new("Valor", values);            
-
-            MainDF = new(DFFecha, DFLatitud, DFLongitud, DFLatStride, DFLonStride, DFMagnitud, DFNivel, DFValor);
-            DataFrame.SaveCsv(MainDF, CDSDataPath, cultureInfo: Usa);
-        */
-
+        return Task.CompletedTask;
     }
 }
 

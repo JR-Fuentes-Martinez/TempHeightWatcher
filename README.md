@@ -15,7 +15,7 @@ Y para su implementación, se incorporará series de datos obtenidos de ERA-5 CD
 
 ----------
 ### Objetivos y Estado  
-**Modificado a 2025-07-12**   
+**Modificado a 2025-07-18**   
 Se citan a continuación los principales objetivos y el estado de consecución:  
 
 1. Conseguir una automatización de los scripts de Python para la cdsapi sensible a cambios de mes. Se ha solucionado realizando peticiones por año y por mes, con los días a considerar por cada mes. Se añade una manera de captar si los registros ya existen y no necesitan ser descargados de nuevo. Está terminado y en estado de prueba.  
@@ -47,11 +47,10 @@ And for its implementation, data and software obtained from ERA-5 CDS (Copernicu
 *"The main goal, the truth and only the truth. Meanwhile welcome to certainty."*   
 JRFM - 2025
 
-![Graph](ComDiffs20250601.svg)![Graph](ComDiffs20250604.svg)    
-![Graph](ComDiffs20250601_south.svg)![Graph](ComDiffs20250604_south.svg)    
+![Graph](Graficos/ComDiffs20250602N90P00.svg)![Graph](Graficos/ComDiffs20250602P90P00.svg)    
 
 > **Attributtion on Data origin.**   
-> Copernicus Climate Change Service, Climate Data Store, (2024): ERA5 post-processed daily-statistics on pressure levels from 1940 to present. Copernicus Climate Change Service (C3S) Climate Data Store (CDS), DOI: 10.24381/cds.50314f4c (Accessed on 13-07-2025) See Conditions there.    
+> Copernicus Climate Change Service, Climate Data Store, (2024): ERA5 post-processed daily-statistics on pressure levels from 1940 to present. Copernicus Climate Change Service (C3S) Climate Data Store (CDS), DOI: 10.24381/cds.50314f4c (Accessed on 18-07-2025) See Conditions there.    
 
 > License: ScottPlot was created by Scott W Harden and enhanced by many contributions from the open-source community. It is provided under the permissive MIT license and is free to modify and use for any purpose.    
 
