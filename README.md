@@ -47,9 +47,9 @@ And for its implementation, data and software obtained from ERA-5 CDS (Copernicu
 *"The main goal, the truth and only the truth. Meanwhile welcome to certainty."*   
 JRFM - 2025
 
-![Graph](Graficos/ComDiffs20250602N90P00.svg)![Graph](Graficos/ComDiffs19660602N90P00.svg)  
+![Graph](Graficos/ComDiffsV20250601N90P00.svg)![Graph](Graficos/ComDiffsV19660601N90P00.svg)  
 ----------
-![Graph](Graficos/ComDiffs20250602P90P00.svg)![Graph](Graficos/ComDiffs19660602P90P00.svg)  
+![Graph](Graficos/ComDiffsV20250601P90P00.svg)![Graph](Graficos/ComDiffsV19660601P90P00.svg)  
 
 > **Attributtion on Data origin.**   
 > Copernicus Climate Change Service, Climate Data Store, (2024): ERA5 post-processed daily-statistics on pressure levels from 1940 to present. Copernicus Climate Change Service (C3S) Climate Data Store (CDS), DOI: 10.24381/cds.50314f4c (Accessed on 18-07-2025) See Conditions there.    

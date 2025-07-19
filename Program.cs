@@ -29,9 +29,9 @@ class Program
     private static int SDias = 0;
     private static readonly CultureInfo Usa = new("");
     private static readonly string Directorio =
-    $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/Documentos/CDSData";
-    private static readonly string CDSDataPath = $"{Directorio}/CdsData.csv";
-    private static readonly SqliteConnection DbConn = new($"Data Source={Directorio}/CdsData.sqlite;");
+    $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/Documentos";
+    private static readonly string CDSDataPath = $"{Directorio}/CDSData/CdsData.csv";
+    private static readonly SqliteConnection DbConn = new($"Data Source={Directorio}/CDSData/CdsData.sqlite;");
     private static readonly DataFrame[] DFTemps = new DataFrame[NumDataSignalsForDataframes];
     private static double[] Alturas = [
         1.0, 2.0, 3.0,
@@ -133,14 +133,13 @@ class Program
                 }
             }
 
-            var MainDF = DataFrame.LoadCsv(CDSDataPath, cultureInfo: Usa);
-            var DFTemp = MainDF.Filter(MainDF["Latitud"].ElementwiseEquals(Latitud));
-            DFTemp = DFTemp.Filter(DFTemp["Longitud"].ElementwiseEquals(Longitud));
-            DFTemp = DFTemp.Filter(DFTemp["Fecha"].ElementwiseGreaterThanOrEqual(FechaToNum(FInicio)));
-            DFTemp = DFTemp.Filter(DFTemp["Fecha"].ElementwiseLessThanOrEqual(FechaToNum(FinWork)));
-
             if (DTarea)
             {
+                var MainDF = DataFrame.LoadCsv(CDSDataPath, cultureInfo: Usa);
+                var DFTemp = MainDF.Filter(MainDF["Latitud"].ElementwiseEquals(Latitud));
+                DFTemp = DFTemp.Filter(DFTemp["Longitud"].ElementwiseEquals(Longitud));
+                DFTemp = DFTemp.Filter(DFTemp["Fecha"].ElementwiseGreaterThanOrEqual(FechaToNum(FInicio)));
+                DFTemp = DFTemp.Filter(DFTemp["Fecha"].ElementwiseLessThanOrEqual(FechaToNum(FinWork)));
                 bool Terminado = false;
 
                 for (int q = 0; q < NumDataSignalsForDataframes; q++)
@@ -256,7 +255,7 @@ class Program
 
             if (HTarea)
             {
-                _ = HazGraficos(FInicio.AddDays(1), Latitud, Longitud, ["t", "q"], ["dT/dp [degK]", "dq/dp [g/Kg]"]);
+                _ = HazGraficoVertical(Latitud, Longitud, ["t", "q"], ["dT/dp [degK]", "dq/dp [g/Kg]"], FInicio.AddDays(SDias));
             }
 
             return;
@@ -285,7 +284,7 @@ class Program
         var Tiempo = LAFecha - DateTime.UnixEpoch;
         return Tiempo.Days;
     }
-    static DateOnly NumToFecha(long Numero)
+    static DateOnly NumToFecha(float Numero)
     {
         return DateOnly.FromDateTime(DateTime.UnixEpoch.AddDays(Numero));
     }
@@ -420,30 +419,34 @@ class Program
         }
     }
 
-    static Task HazGraficos(DateOnly Fecha, double Latitud, double Longitud, string[] Magnitudes, string[] Unidades)
+    static Task HazGraficoVertical(
+        double Latitud, double Longitud, string[] Magnitudes, string[] Unidades,
+        DateOnly Fecha)
     {
         var Cultura = Thread.CurrentThread.CurrentCulture;
-        Thread.CurrentThread.CurrentCulture = Usa;        
-        
-        var Data = DataFrame.LoadCsv(CDSDataPath, cultureInfo: Usa);
+        Thread.CurrentThread.CurrentCulture = Usa;
+
+        var MainDF = DataFrame.LoadCsv(CDSDataPath, cultureInfo: Usa);
+        var DFTemp = MainDF.Filter(MainDF["Latitud"].ElementwiseEquals(Latitud));
+        DFTemp = DFTemp.Filter(DFTemp["Longitud"].ElementwiseEquals(Longitud));
+        DFTemp = DFTemp.Filter(DFTemp["Fecha"].ElementwiseEquals(FechaToNum(Fecha)));
+
         var LasDiffs = new IEnumerable<double>[Magnitudes.Length];
 
         for (int i = 0; i < LasDiffs.Length; i++)
         {
             LasDiffs[i] = [];
-        }        
+        }
         var Datas = new DataFrame[Magnitudes.Length];
         float Minimo = float.NaN, Maximo = float.NaN, HMinimo = float.NaN, HMaximo = float.NaN;
+        Alturas = [.. Alturas.Skip(HeightsToExclude)];
 
-        Data = Data.Filter(Data["Fecha"].ElementwiseEquals(FechaToNum(Fecha)));
-        Data = Data.Filter(Data["Latitud"].ElementwiseEquals(Latitud));
-        Data = Data.Filter(Data["Longitud"].ElementwiseEquals(Longitud));
-        Data = Data.OrderBy("Nivel");
         int Multiplo;
 
         for (int i = 0; i < Magnitudes.Length; i++)
         {
-            Datas[i] = Data.Filter(Data["Magnitud"].ElementwiseEquals(Magnitudes[i]));
+            Datas[i] = DFTemp.Filter(DFTemp["Magnitud"].ElementwiseEquals(Magnitudes[i]));
+            Datas[i] = Datas[i].OrderBy("Nivel");
 
             foreach (var item in Datas[i].Rows.Skip(HeightsToExclude))
             {
@@ -473,9 +476,149 @@ class Program
                 }
             }
         }
+        Plot myPlot = new();
 
-        Alturas = [.. Alturas.Skip(HeightsToExclude)];
-        
+        // change figure colors
+        myPlot.FigureBackground.Color = Color.FromHex("#181818");
+        myPlot.DataBackground.Color = Color.FromHex("#1f1f1f");
+
+        // change axis and grid colors
+        myPlot.Axes.Color(Color.FromHex("#d7d7d7"));
+        myPlot.Grid.MajorLineColor = Color.FromHex("#404040");
+
+        // change legend colors
+        myPlot.Legend.BackgroundColor = Color.FromHex("#404040");
+        myPlot.Legend.FontColor = Color.FromHex("#d7d7d7");
+        myPlot.Legend.OutlineColor = Color.FromHex("#d7d7d7");
+
+        myPlot.Title($"{Fecha.ToLongDateString()}  Lat:{Latitud:00.00} Lon:{Longitud:00.00}  Levels:10-1000hPa", 16);
+        myPlot.XLabel("Pressure Level [hPa]", 16);
+        myPlot.YLabel(Unidades[0], 16);
+        myPlot.Add.ScatterLine(Alturas, [.. LasDiffs[0]], Color.FromHex("#d7d7d7"));
+
+        for (int i = 1; i < LasDiffs.Length; i++)
+        {
+            var ElColor = Colors.Magenta;
+            var Eje = myPlot.Axes.AddLeftAxis();
+            Eje.LabelText = Unidades[i];
+            Eje.Color(ElColor);
+            Eje.LabelFontSize = 16;
+            var ff = myPlot.Add.ScatterLine(Alturas, [.. LasDiffs[i]], ElColor);
+            ff.Axes.YAxis = Eje;
+        }
+        var linea1 = myPlot.Add.VerticalLine(HMinimo, 3, Colors.DarkBlue);
+        linea1.Text = "COLDest";
+        linea1.LabelOppositeAxis = true;
+        linea1.LabelFontSize = 14;
+        linea1.LabelOffsetY = 0;
+
+        var linea2 = myPlot.Add.VerticalLine(HMaximo, 3, Colors.Red);
+        linea2.Text = "HOTest";
+        linea2.LabelOppositeAxis = true;
+        linea2.LabelFontSize = 14;
+        linea2.LabelOffsetY = 0;
+        myPlot.Axes.SetLimitsX(0, 1013);
+
+        myPlot.Axes.Top.MinimumSize = 30;
+        myPlot.Axes.Right.MinimumSize = 30;
+        myPlot.Axes.Left.MinimumSize = 30;
+
+        string SignoLat, SignoLon;
+        if (Latitud < 0) SignoLat = "N"; else SignoLat = "P";
+        if (Longitud < 0) SignoLon = "N"; else SignoLon = "P";
+
+        myPlot.SaveSvg(
+            $"Graficos/ComDiffsV{Fecha:yyyyMMdd}{SignoLat}{double.Abs(Latitud):00}{SignoLon}{double.Abs(Longitud):00}.svg",
+            1000, 400);
+
+        Thread.CurrentThread.CurrentCulture = Cultura;
+
+        return Task.CompletedTask;
+    }
+}
+
+/*
+ static Task HazGraficos(
+        double Latitud, double Longitud, string[] Magnitudes, string[] Unidades,
+        int Tipo, DateOnly Fecha, int Nivel = -1)
+    {
+        var Cultura = Thread.CurrentThread.CurrentCulture;
+        Thread.CurrentThread.CurrentCulture = Usa;
+
+        var Data = DataFrame.LoadCsv(CDSDataPath, cultureInfo: Usa);
+        var LasDiffs = new IEnumerable<double>[Magnitudes.Length];
+        IEnumerable<DateTime> LasFechas = [];
+
+        for (int i = 0; i < LasDiffs.Length; i++)
+        {
+            LasDiffs[i] = [];
+        }
+        var Datas = new DataFrame[Magnitudes.Length];
+        float Minimo = float.NaN, Maximo = float.NaN, HMinimo = float.NaN, HMaximo = float.NaN;
+
+        if (Tipo == 0)
+        {
+            Data = Data.Filter(Data["Fecha"].ElementwiseEquals(FechaToNum(Fecha)));
+            Data = Data.Filter(Data["Latitud"].ElementwiseEquals(Latitud));
+            Data = Data.Filter(Data["Longitud"].ElementwiseEquals(Longitud));
+            //Data = Data.OrderBy("Nivel");
+            Alturas = [.. Alturas.Skip(HeightsToExclude)];
+        }
+        else if (Tipo == 1)
+        {
+            if (Nivel < 0) throw new Exception("No se ha indicado el nivel");
+            Data = Data.Filter(Data["Nivel"].ElementwiseEquals(Nivel));
+            Data = Data.Filter(Data["Latitud"].ElementwiseEquals(Latitud));
+            Data = Data.Filter(Data["Longitud"].ElementwiseEquals(Longitud));
+            //Data = Data.OrderBy("Fecha");
+        }
+        int Multiplo;
+
+        for (int i = 0; i < Magnitudes.Length; i++)
+        {
+            Datas[i] = Data.Filter(Data["Magnitud"].ElementwiseEquals(Magnitudes[i]));
+            IEnumerable<DataFrameRow> Filas = [];
+
+            if (Tipo == 0)
+            {
+                Datas[i].OrderBy("Nivel");
+                Filas = Datas[i].Rows.Skip(HeightsToExclude);
+            }
+            else if (Tipo == 1)
+            {
+                Datas[i].OrderBy("Fecha");
+                Filas = Datas[i].Rows;
+            }
+
+            foreach (var item in Filas)
+            {
+                if (Magnitudes[i].Contains('q', StringComparison.CurrentCultureIgnoreCase)) Multiplo = 1000;
+                else Multiplo = 1;
+
+                LasDiffs[i] = LasDiffs[i].Append((float)item[9] * Multiplo);
+                if (i == 0 && Tipo == 1) LasFechas = LasFechas.Append(new DateTime(NumToFecha((float)item[0]), TimeOnly.MinValue));
+
+                if (Magnitudes[i].Contains('t', StringComparison.CurrentCultureIgnoreCase) && Tipo == 0)
+                {
+                    var ElValor = (float)item[7];
+                    var Altura = (float)item[6];
+
+                    if (float.IsNaN(Minimo)) Minimo = ElValor;
+                    if (float.IsNaN(Maximo)) Maximo = ElValor;
+
+                    if (ElValor < Minimo)
+                    {
+                        Minimo = ElValor;
+                        HMinimo = Altura;
+                    }
+                    if (ElValor >= Maximo)
+                    {
+                        Maximo = ElValor;
+                        HMaximo = Altura;
+                    }
+                }
+            }
+        }
         Plot myPlot = new();
 
         // change figure colors
@@ -503,42 +646,47 @@ class Program
             Eje.LabelText = Unidades[i];
             Eje.Color(ElColor);
             Eje.LabelFontSize = 16;
-            var ff = myPlot.Add.ScatterLine(Alturas, [.. LasDiffs[i]], ElColor);
-            ff.Axes.YAxis = Eje;
-        }        
-        
-        var linea1 = myPlot.Add.VerticalLine(HMinimo, 3, Colors.DarkBlue);
-        linea1.Text = "COLDest";
-        linea1.LabelOppositeAxis = true;
-        linea1.LabelFontSize = 14;
-        linea1.LabelOffsetY = 0;
 
-        var linea2 = myPlot.Add.VerticalLine(HMaximo, 3, Colors.Red);
-        linea2.Text = "HOTest";
-        linea2.LabelOppositeAxis = true;
-        linea2.LabelFontSize = 14;
-        linea2.LabelOffsetY = 0;
+            if (Tipo == 0)
+            {
+                var ff = myPlot.Add.ScatterLine(Alturas, [.. LasDiffs[i]], ElColor);
+                ff.Axes.YAxis = Eje;
+                var linea1 = myPlot.Add.VerticalLine(HMinimo, 3, Colors.DarkBlue);
+                linea1.Text = "COLDest";
+                linea1.LabelOppositeAxis = true;
+                linea1.LabelFontSize = 14;
+                linea1.LabelOffsetY = 0;
 
+                var linea2 = myPlot.Add.VerticalLine(HMaximo, 3, Colors.Red);
+                linea2.Text = "HOTest";
+                linea2.LabelOppositeAxis = true;
+                linea2.LabelFontSize = 14;
+                linea2.LabelOffsetY = 0;
+                myPlot.Axes.SetLimitsX(10, 1013);
+            }
+            else if (Tipo == 1)
+            {
+                var ff = myPlot.Add.ScatterLine(LasFechas.ToArray(), [.. LasDiffs[i]], ElColor);
+                ff.Axes.YAxis = Eje;
+                myPlot.Axes.DateTimeTicksBottom();
+            }
+        }
         myPlot.Axes.Top.MinimumSize = 30;
         myPlot.Axes.Right.MinimumSize = 30;
         myPlot.Axes.Left.MinimumSize = 30;
 
-        myPlot.Axes.SetLimitsX(10, 1013);
-
-        var SignoLat = string.Empty;
-        var SignoLon = string.Empty;
-
+        string SignoLat, SignoLon, STipo;
         if (Latitud < 0) SignoLat = "N"; else SignoLat = "P";
         if (Longitud < 0) SignoLon = "N"; else SignoLon = "P";
+        if (Tipo == 0) STipo = "V"; else STipo = "H";
 
-        myPlot.SaveSvg($"Graficos/ComDiffs{Fecha.ToString("yyyyMMdd")}{SignoLat}{double.Abs(Latitud):00}{SignoLon}{double.Abs(Longitud):00}.svg", 950, 350);
+        myPlot.SaveSvg(
+            $"Graficos/ComDiffs{STipo}{Fecha:yyyyMMdd}{SignoLat}{double.Abs(Latitud):00}{SignoLon}{double.Abs(Longitud):00}.svg",
+            950, 350);
 
         Thread.CurrentThread.CurrentCulture = Cultura;
 
         return Task.CompletedTask;
     }
-}
-
-
-
+*/
 
