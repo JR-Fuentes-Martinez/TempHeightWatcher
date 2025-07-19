@@ -25,6 +25,7 @@ class Program
     private static DateOnly FInicio = DateOnly.MinValue;
     private static DateOnly FFinal = DateOnly.MinValue;
     private const int NumDataSignalsForDataframes = 2;  //temperature, specific humidity
+    private const int HeightsToExclude = 5;
     private static int SDias = 0;
     private static readonly CultureInfo Usa = new("");
     private static readonly string Directorio =
@@ -107,7 +108,7 @@ class Program
 
             DbConn.Open();
             using var DbComando = DbConn.CreateCommand();
-            DbComando.CommandText = $"SELECT * FROM CdsWorks WHERE [NombreId]='{NomTrabajo}';";
+            DbComando.CommandText = $"SELECT * FROM CdsWorks WHERE [NomTrabajo]='{NomTrabajo}';";
             var ResDb = DbComando.ExecuteReader();
 
             if (ResDb.HasRows)
@@ -118,7 +119,7 @@ class Program
                 FInicio = DateOnly.FromDateTime(ResDb.GetDateTime(0));
                 FinWork = DateOnly.FromDateTime(ResDb.GetDateTime(1));
                 Estado = ResDb.GetInt32(4);
-                LastFecha = DateOnly.FromDateTime(ResDb.GetDateTime(6));
+                LastFecha = DateOnly.FromDateTime(ResDb.GetDateTime(5));
             }
             ResDb.Close();
 
@@ -165,7 +166,7 @@ class Program
                     string SGScript = SScript.ReadToEnd();
                     SScript.Close();
 
-                    DateOnly FBucle = FInicio.AddDays(1);
+                    DateOnly FBucle = FInicio;
                     var StrMeses = string.Empty;
                     var StrAños = string.Empty;
                     var StrDias = string.Empty;
@@ -244,11 +245,11 @@ class Program
                 if (Terminado)
                 {
                     Console.WriteLine("El trabajo de descarga se ha terminado.");
-                    DbComando.CommandText = $"UPDATE CdsWorks SET Estado=1,FechaUltima='{FinWork:yyyy-MM-dd}' WHERE [NombreId]='{NomTrabajo}';";
+                    DbComando.CommandText = $"UPDATE CdsWorks SET Estado=1,LastF='{FinWork:yyyy-MM-dd}' WHERE [NomTrabajo]='{NomTrabajo}';";
                 }
                 else
                 {
-                    DbComando.CommandText = $"UPDATE CdsWorks SET FechaUltima='{LastFecha:yyyy-MM-dd}' WHERE [NombreId]='{NomTrabajo}';";
+                    DbComando.CommandText = $"UPDATE CdsWorks SETLastF='{LastFecha:yyyy-MM-dd}' WHERE [NomTrabajo]='{NomTrabajo}';";
                 }
                 DbComando.ExecuteNonQuery();
             }
@@ -332,6 +333,8 @@ class Program
             PPython.Start();
             PPython.WaitForExit();
             if (PPython.ExitCode != 0) throw new Exception("Error en el programa python.");
+
+            Thread.Sleep(2000);
 
             var Ficheros = Directory.EnumerateFiles(RutaD);
             string RutaNc = string.Empty;
@@ -442,7 +445,7 @@ class Program
         {
             Datas[i] = Data.Filter(Data["Magnitud"].ElementwiseEquals(Magnitudes[i]));
 
-            foreach (var item in Datas[i].Rows)
+            foreach (var item in Datas[i].Rows.Skip(HeightsToExclude))
             {
                 if (Magnitudes[i].Contains('q', StringComparison.CurrentCultureIgnoreCase)) Multiplo = 1000;
                 else Multiplo = 1;
@@ -469,10 +472,10 @@ class Program
                     }
                 }
             }
-            //LasDiffs[i] = LasDiffs[i].Skip(10);
         }
-        //Alturas = [.. Alturas.Skip(10)];
 
+        Alturas = [.. Alturas.Skip(HeightsToExclude)];
+        
         Plot myPlot = new();
 
         // change figure colors
@@ -520,7 +523,7 @@ class Program
         myPlot.Axes.Right.MinimumSize = 30;
         myPlot.Axes.Left.MinimumSize = 30;
 
-        myPlot.Axes.SetLimitsX(0, 1013);
+        myPlot.Axes.SetLimitsX(10, 1013);
 
         var SignoLat = string.Empty;
         var SignoLon = string.Empty;
