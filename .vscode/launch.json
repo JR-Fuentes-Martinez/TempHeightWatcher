@@ -11,7 +11,7 @@
             "preLaunchTask": "build",
             // Si ha cambiado las plataformas de destino, asegúrese de actualizar la ruta de acceso del programa.
             "program": "${workspaceFolder}/bin/Debug/net8.0/TempHeightWatcher.dll",
-            "args": ["work2025S", "0", "g"],
+            "args": ["work1966S", "2", "g"],
             "cwd": "${workspaceFolder}",
             // Para obtener más información sobre el campo \"consola\", consulte https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",

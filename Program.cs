@@ -25,7 +25,7 @@ class Program
     private static DateOnly FInicio = DateOnly.MinValue;
     private static DateOnly FFinal = DateOnly.MinValue;
     private const int NumDataSignalsForDataframes = 2;  //temperature, specific humidity
-    private const int HeightsToExclude = 5;
+    private const int HeightsToExclude = 0;
     private static int SDias = 0;
     private static readonly CultureInfo Usa = new("");
     private static readonly string Directorio =
@@ -61,6 +61,11 @@ class Program
             .AddUserSecrets<Program>()
             .Build();
         */
+        for (int i = 0; i < Alturas.Length; i++)
+        {
+            Alturas[i] *= 100.0f;
+        }
+
         if (args.Length == 3)
         {
             NomTrabajo = args[0];
@@ -248,7 +253,7 @@ class Program
                 }
                 else
                 {
-                    DbComando.CommandText = $"UPDATE CdsWorks SETLastF='{LastFecha:yyyy-MM-dd}' WHERE [NomTrabajo]='{NomTrabajo}';";
+                    DbComando.CommandText = $"UPDATE CdsWorks SET LastF='{LastFecha:yyyy-MM-dd}' WHERE [NomTrabajo]='{NomTrabajo}';";
                 }
                 DbComando.ExecuteNonQuery();
             }
@@ -296,8 +301,8 @@ class Program
         var Cultura = Thread.CurrentThread.CurrentCulture;
         Thread.CurrentThread.CurrentCulture = Usa;
         int Iterador = 0;
-        string RutaT = Path.Combine(Directorio, "tmp/script.py");
-        string RutaD = Path.Combine(Directorio, "tmp");
+        string RutaT = Path.Combine(Directorio, "CDSData/tmp/script.py");
+        string RutaD = Path.Combine(Directorio, "CDSData/tmp");
 
         var FLatitud = Math.Abs(Latitud) - 0.01; // degrees_north ????
         if (Math.Sign(Latitud) < 0) FLatitud *= -1.0;
@@ -491,10 +496,11 @@ class Program
         myPlot.Legend.FontColor = Color.FromHex("#d7d7d7");
         myPlot.Legend.OutlineColor = Color.FromHex("#d7d7d7");
 
-        myPlot.Title($"{Fecha.ToLongDateString()}  Lat:{Latitud:00.00} Lon:{Longitud:00.00}  Levels:10-1000hPa", 16);
-        myPlot.XLabel("Pressure Level [hPa]", 16);
+        myPlot.Title($"{Fecha.ToLongDateString()}  Lat:{Latitud:00.00} Lon:{Longitud:00.00}  Levels:100-100000Pa", 16);
+        myPlot.XLabel("Pressure Level [Pa]", 16);
         myPlot.YLabel(Unidades[0], 16);
-        myPlot.Add.ScatterLine(Alturas, [.. LasDiffs[0]], Color.FromHex("#d7d7d7"));
+        var l1 = myPlot.Add.ScatterLine(Alturas, [.. LasDiffs[0]], Color.FromHex("#d7d7d7"));
+        l1.LineWidth = 2;
 
         for (int i = 1; i < LasDiffs.Length; i++)
         {
@@ -505,21 +511,22 @@ class Program
             Eje.LabelFontSize = 16;
             var ff = myPlot.Add.ScatterLine(Alturas, [.. LasDiffs[i]], ElColor);
             ff.Axes.YAxis = Eje;
+            ff.LineWidth = 2;
         }
         var linea1 = myPlot.Add.VerticalLine(HMinimo, 3, Colors.DarkBlue);
-        linea1.Text = "COLDest";
+        linea1.Text = $"COLDest\n{HMinimo}Pa";
         linea1.LabelOppositeAxis = true;
         linea1.LabelFontSize = 14;
         linea1.LabelOffsetY = 0;
 
         var linea2 = myPlot.Add.VerticalLine(HMaximo, 3, Colors.Red);
-        linea2.Text = "HOTest";
+        linea2.Text = $"HOTest\n{HMaximo}Pa";
         linea2.LabelOppositeAxis = true;
         linea2.LabelFontSize = 14;
         linea2.LabelOffsetY = 0;
-        myPlot.Axes.SetLimitsX(0, 1013);
+        myPlot.Axes.SetLimitsX(Alturas[0] - 500, Alturas[^1] + 1300);
 
-        myPlot.Axes.Top.MinimumSize = 30;
+        myPlot.Axes.Top.MinimumSize = 60;
         myPlot.Axes.Right.MinimumSize = 30;
         myPlot.Axes.Left.MinimumSize = 30;
 
@@ -529,7 +536,7 @@ class Program
 
         myPlot.SaveSvg(
             $"Graficos/ComDiffsV{Fecha:yyyyMMdd}{SignoLat}{double.Abs(Latitud):00}{SignoLon}{double.Abs(Longitud):00}.svg",
-            1000, 400);
+            1000, 420);
 
         Thread.CurrentThread.CurrentCulture = Cultura;
 
