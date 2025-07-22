@@ -3,7 +3,7 @@
 
 Spanish (better english translation to do)  
 
-### Visita la Galería de Gráficos  [Galeria](GraphGallery)    
+### Visita la Galería de Gráficos  [Galeria](GraphGallery.md)    
 
 ### Sobre el concepto  
 El presente proyecto se está desarrollando para tratar de definir un método de tratamiento de datos, climáticos en especial, donde el énfasis se trata de situar en como es el cambio en el tiempo de esos datos tabulados. Es sin duda la cuestión a preguntarse y responder ante la constatación de que ese cambio o transformación existe, es, ha sido y será. Y por tanto se acepta que es mejor conocer ese devenir más que por medios diferenciales. Y se propone por tanto que tales datos son la manifestación de una definición en cada instante.   
@@ -28,7 +28,7 @@ Se citan a continuación los principales objetivos y el estado de consecución:
 6. Se considerará esa característica de las splines de ser algo indefenidas en sus puntos de inicio y final. Se tratará en todo lo posible de considerar suficiente número de valores tratando de disminuir ese espacio de indefinición a un mínimo. Tambien se ensayaran las distintas posibilidades de construcción al respecto, natural, cuadrática o con valores concretos de primera o segunda derivada.
 ----------
 **ENGLISH AUTOMATED TRANSLATION. (sorry)**    
-### Visit the Graph Gallery  [Galeria](GraphGallery)     
+### Visit the Graph Gallery  [Galeria](GraphGallery.md)     
 **About the concept**   
 This project is being developed to try to define a method of data processing, especially climatic data, where the emphasis is on how the change in time of these tabulated data is. It is undoubtedly the question to be asked and answered in the face of the realization that this change or transformation exists, is, has been and will be. And therefore it is accepted that it is only possible to know this becoming by differential means. And it is therefore proposed that such data are the manifestation of a definition at each moment.   
 At the same time, it is assumed as a distinctive principle that this change is the one that in some way complies with laws and is where they should be sought, these instantaneous definitions being a product and not a cause in themselves.  
