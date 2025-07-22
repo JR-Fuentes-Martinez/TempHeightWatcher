@@ -1,2 +1,10 @@
 https://thredds.ucar.edu/thredds/ncss/grid/grib/NCEP/GFS/Global_0p25deg_ana/GFS_Global_0p25deg_ana_20250718_1800.grib2?var=Specific_humidity_isobaric&var=Temperature_isobaric&var=Ozone_Mixing_Ratio_isobaric&latitude=90&longitude=0&time_start=2025-07-18T18:00:00Z&time_end=2025-07-18T18:00:00Z&&&accept=csv
+https://thredds.ucar.edu/thredds/ncss/grid/grib/NCEP/GFS/Global_0p25deg_ana/GFS_Global_0p25deg_ana_20250720_1800.grib2?var=Temperature_isobaric&latitude=-90&longitude=0&time_start=2025-07-20T18:00:00Z&time_end=2025-07-20T18:00:00Z&&accept=csv
+
+
+time,alt[unit=Pa],station,latitude[unit=degrees_north],
+longitude[unit=degrees_east],Specific_humidity_isobaric[unit=kg/kg],
+Temperature_isobaric[unit=K],Ozone_Mixing_Ratio_isobaric[unit=kg.kg-1]
+
+curl -o {Path} -A {UserAgent}
 

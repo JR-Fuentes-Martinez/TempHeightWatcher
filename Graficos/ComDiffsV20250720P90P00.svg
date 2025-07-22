@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1000" height="420">
+	<rect fill="#181818" width="1000" height="420"/>
+	<clipPath id="cl_3">
+		<rect x="163.03906" y="99.375" width="806.96094" height="255.21875"/>
+	</clipPath>
+	<g clip-path="url(#cl_3)">
+		<rect fill="#1F1F1F" x="163.03906" y="99.375" width="806.96094" height="255.21875"/>
+	</g>
+	<path fill="none" stroke="#404040" stroke-width="1" stroke-miterlimit="4" d="M163.039 354.594L163.039 99.375M242.7 354.594L242.7 99.375M322.36 354.594L322.36 99.375M402.021 354.594L402.021 99.375M481.681 354.594L481.681 99.375M561.342 354.594L561.342 99.375M641.002 354.594L641.002 99.375M720.663 354.594L720.663 99.375M800.323 354.594L800.323 99.375M879.984 354.594L879.984 99.375M959.644 354.594L959.644 99.375"/>
+	<path fill="none" stroke="#404040" stroke-width="1" stroke-miterlimit="4" d="M163.039 329.256L970 329.256M163.039 276.484L970 276.484M163.039 223.713L970 223.713M163.039 170.941L970 170.941M163.039 118.17L970 118.17"/>
+	<clipPath id="cl_4">
+		<rect x="163.03906" y="99.375" width="806.96094" height="255.21875"/>
+	</clipPath>
+	<g clip-path="url(#cl_4)">
+		<path fill="none" stroke="#D7D7D7" stroke-width="2" stroke-miterlimit="4" d="M178.971 337.949L186.937 195.542L194.903 144.716L202.869 201.063L218.801 169.809L242.7 167.77L282.53 159.919L322.36 205.598L362.19 192.252L402.021 116.02L441.851 125.327L481.681 131.646L521.511 139.393L561.342 143.336L601.172 146.626L641.002 156.507L680.832 156.354L720.663 157.457L760.493 151.744L800.323 153.545L840.153 175.801L879.984 208.053L899.899 188.301L919.814 163.011L939.729 161.41L959.644 170.941"/>
+	</g>
+	<clipPath id="cl_5">
+		<rect x="163.03906" y="99.375" width="806.96094" height="255.21875"/>
+	</clipPath>
+	<g clip-path="url(#cl_5)">
+		<path fill="none" stroke="fuchsia" stroke-width="2" stroke-miterlimit="4" d="M178.971 189.366L186.937 189.426L194.903 189.41L202.869 189.412L218.801 189.426L242.7 189.354L282.53 189.702L322.36 187.982L362.19 187.975L402.021 185.331L441.851 183.611L481.681 177.012L521.511 179.185L561.342 174.329L601.172 140.56L641.002 153.679L680.832 153.62L720.663 116.02L760.493 162.173L800.323 134.083L840.153 183.254L879.984 337.949L899.899 252.822L919.814 174.64L939.729 178.97L959.644 189.413"/>
+	</g>
+	<clipPath id="cl_6">
+		<rect x="163.03906" y="99.375" width="806.96094" height="255.21875"/>
+	</clipPath>
+	<g clip-path="url(#cl_6)">
+		<path fill="none" stroke="#00008B" stroke-width="3" stroke-miterlimit="4" d="M362.19 354.594L362.19 99.375"/>
+	</g>
+	<clipPath id="cl_7">
+		<rect x="163.03906" y="99.375" width="806.96094" height="255.21875"/>
+	</clipPath>
+	<g clip-path="url(#cl_7)">
+		<path fill="none" stroke="red" stroke-width="3" stroke-miterlimit="4" d="M840.153 354.594L840.153 99.375"/>
+	</g>
+	<text fill="#D7D7D7" transform="translate(566.52 416)" font-size="16" font-weight="600" font-family="Khmer Mondulkiri" x="-75.320312, -65.765625, -59.453125, -51.210938, -44.390625, -37.570312, -28.34375, -22.03125, -13.789062, -4.4140625, 6.09375, 14.335938, 22.90625, 31.148438, 36.328125, 45.703125, 51.71875, 61.273438, 69.304688, " y="-14.5625, ">
+			Pressure Level [Pa]
+	</text>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M163.039 354.594L163.039 358.594"/>
+	<text fill="#D7D7D7" transform="translate(163.039 360.594)" font-size="12" font-family="Khmer Mondulkiri" x="-3.1640625, " y="11.039062, ">
+			0
+	</text>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M242.7 354.594L242.7 358.594"/>
+	<text fill="#D7D7D7" transform="translate(242.7 360.594)" font-size="12" font-family="Khmer Mondulkiri" x="-17.490234, -11.162109, -4.8339844, -1.4941406, 4.8339844, 11.162109, " y="11.039062, ">
+			10,000
+	</text>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M322.36 354.594L322.36 358.594"/>
+	<text fill="#D7D7D7" transform="translate(322.36 360.594)" font-size="12" font-family="Khmer Mondulkiri" x="-17.490234, -11.162109, -4.8339844, -1.4941406, 4.8339844, 11.162109, " y="11.039062, ">
+			20,000
+	</text>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M402.021 354.594L402.021 358.594"/>
+	<text fill="#D7D7D7" transform="translate(402.021 360.594)" font-size="12" font-family="Khmer Mondulkiri" x="-17.490234, -11.162109, -4.8339844, -1.4941406, 4.8339844, 11.162109, " y="11.039062, ">
+			30,000
+	</text>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M481.681 354.594L481.681 358.594"/>
+	<text fill="#D7D7D7" transform="translate(481.681 360.594)" font-size="12" font-family="Khmer Mondulkiri" x="-17.490234, -11.162109, -4.8339844, -1.4941406, 4.8339844, 11.162109, " y="11.039062, ">
+			40,000
+	</text>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M561.342 354.594L561.342 358.594"/>
+	<text fill="#D7D7D7" transform="translate(561.342 360.594)" font-size="12" font-family="Khmer Mondulkiri" x="-17.490234, -11.162109, -4.8339844, -1.4941406, 4.8339844, 11.162109, " y="11.039062, ">
+			50,000
+	</text>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M641.002 354.594L641.002 358.594"/>
+	<text fill="#D7D7D7" transform="translate(641.002 360.594)" font-size="12" font-family="Khmer Mondulkiri" x="-17.490234, -11.162109, -4.8339844, -1.4941406, 4.8339844, 11.162109, " y="11.039062, ">
+			60,000
+	</text>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M720.663 354.594L720.663 358.594"/>
+	<text fill="#D7D7D7" transform="translate(720.663 360.594)" font-size="12" font-family="Khmer Mondulkiri" x="-17.490234, -11.162109, -4.8339844, -1.4941406, 4.8339844, 11.162109, " y="11.039062, ">
+			70,000
+	</text>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M800.323 354.594L800.323 358.594"/>
+	<text fill="#D7D7D7" transform="translate(800.323 360.594)" font-size="12" font-family="Khmer Mondulkiri" x="-17.490234, -11.162109, -4.8339844, -1.4941406, 4.8339844, 11.162109, " y="11.039062, ">
+			80,000
+	</text>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M879.984 354.594L879.984 358.594"/>
+	<text fill="#D7D7D7" transform="translate(879.984 360.594)" font-size="12" font-family="Khmer Mondulkiri" x="-17.490234, -11.162109, -4.8339844, -1.4941406, 4.8339844, 11.162109, " y="11.039062, ">
+			90,000
+	</text>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M959.644 354.594L959.644 358.594"/>
+	<text fill="#D7D7D7" transform="translate(959.644 360.594)" font-size="12" font-family="Khmer Mondulkiri" x="-20.654297, -14.326172, -7.9980469, -1.6699219, 1.6699219, 7.9980469, 14.326172, " y="11.039062, ">
+			100,000
+	</text>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M178.971 354.594L178.971 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M194.903 354.594L194.903 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M210.835 354.594L210.835 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M226.767 354.594L226.767 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M258.632 354.594L258.632 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M274.564 354.594L274.564 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M290.496 354.594L290.496 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M306.428 354.594L306.428 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M338.292 354.594L338.292 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M354.224 354.594L354.224 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M370.156 354.594L370.156 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M386.089 354.594L386.089 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M417.953 354.594L417.953 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M433.885 354.594L433.885 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M449.817 354.594L449.817 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M465.749 354.594L465.749 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M497.613 354.594L497.613 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M513.545 354.594L513.545 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M529.477 354.594L529.477 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M545.409 354.594L545.409 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M577.274 354.594L577.274 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M593.206 354.594L593.206 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M609.138 354.594L609.138 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M625.07 354.594L625.07 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M656.934 354.594L656.934 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M672.866 354.594L672.866 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M688.798 354.594L688.798 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M704.731 354.594L704.731 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M736.595 354.594L736.595 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M752.527 354.594L752.527 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M768.459 354.594L768.459 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M784.391 354.594L784.391 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M816.255 354.594L816.255 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M832.187 354.594L832.187 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M848.119 354.594L848.119 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M864.052 354.594L864.052 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M895.916 354.594L895.916 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M911.848 354.594L911.848 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M927.78 354.594L927.78 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M943.712 354.594L943.712 356.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M163.039 354.594L970 354.594"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M163.039 99.475L970 99.475"/>
+	<text fill="#D7D7D7" transform="matrix(0 -1 1 0 88.6836 226.984)" font-size="16" font-weight="600" font-family="Khmer Mondulkiri" x="-53.367188, -44.398438, -34.34375, -24.8125, -15.84375, -6.859375, 2.515625, 8.53125, 17.5, 25.742188, 34.304688, 47.351562, " y="14.8125, ">
+			dT/dp [degK]
+	</text>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M163.039 329.256L159.039 329.256"/>
+	<text fill="#D7D7D7" transform="translate(154.039 329.256)" font-size="12" font-family="Khmer Mondulkiri" x="-34.980469, -28.828125, -22.5, -18.984375, -12.65625, -6.328125, " y="0.0234375, ">
+			-0.006
+	</text>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M163.039 276.484L159.039 276.484"/>
+	<text fill="#D7D7D7" transform="translate(154.039 276.484)" font-size="12" font-family="Khmer Mondulkiri" x="-34.980469, -28.828125, -22.5, -18.984375, -12.65625, -6.328125, " y="0.0234375, ">
+			-0.004
+	</text>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M163.039 223.713L159.039 223.713"/>
+	<text fill="#D7D7D7" transform="translate(154.039 223.713)" font-size="12" font-family="Khmer Mondulkiri" x="-34.980469, -28.828125, -22.5, -18.984375, -12.65625, -6.328125, " y="0.0234375, ">
+			-0.002
+	</text>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M163.039 170.941L159.039 170.941"/>
+	<text fill="#D7D7D7" transform="translate(154.039 170.941)" font-size="12" font-family="Khmer Mondulkiri" x="-6.328125, " y="0.0234375, ">
+			0
+	</text>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M163.039 118.17L159.039 118.17"/>
+	<text fill="#D7D7D7" transform="translate(154.039 118.17)" font-size="12" font-family="Khmer Mondulkiri" x="-28.828125, -22.5, -18.984375, -12.65625, -6.328125, " y="0.0234375, ">
+			0.002
+	</text>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M163.039 350.364L161.039 350.364"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M163.039 339.81L161.039 339.81"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M163.039 318.702L161.039 318.702"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M163.039 308.147L161.039 308.147"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M163.039 297.593L161.039 297.593"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M163.039 287.039L161.039 287.039"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M163.039 265.93L161.039 265.93"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M163.039 255.376L161.039 255.376"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M163.039 244.822L161.039 244.822"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M163.039 234.267L161.039 234.267"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M163.039 213.159L161.039 213.159"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M163.039 202.604L161.039 202.604"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M163.039 192.05L161.039 192.05"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M163.039 181.496L161.039 181.496"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M163.039 160.387L161.039 160.387"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M163.039 149.833L161.039 149.833"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M163.039 139.279L161.039 139.279"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M163.039 128.724L161.039 128.724"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M163.039 107.616L161.039 107.616"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M163.039 354.594L163.039 99.375"/>
+	<path fill="none" stroke="#D7D7D7" stroke-width="1" stroke-miterlimit="4" d="M970 354.594L970 99.375"/>
+	<text fill="fuchsia" transform="matrix(0 -1 1 0 4 226.984)" font-size="16" font-weight="600" font-family="Khmer Mondulkiri" x="-53.230469, -44.261719, -35.363281, -25.832031, -16.863281, -7.8789062, 1.4960938, 7.5117188, 16.074219, 25.605469, 38.652344, 47.214844, " y="14.8125, ">
+			dq/dp [g/Kg]
+	</text>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M84.6836 301.368L80.6836 301.368"/>
+	<text fill="fuchsia" transform="translate(75.6836 301.368)" font-size="12" font-family="Khmer Mondulkiri" x="-41.308594, -35.15625, -28.828125, -25.3125, -18.984375, -12.65625, -6.328125, " y="0.0234375, ">
+			-0.0004
+	</text>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M84.6836 245.39L80.6836 245.39"/>
+	<text fill="fuchsia" transform="translate(75.6836 245.39)" font-size="12" font-family="Khmer Mondulkiri" x="-41.308594, -35.15625, -28.828125, -25.3125, -18.984375, -12.65625, -6.328125, " y="0.0234375, ">
+			-0.0002
+	</text>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M84.6836 189.413L80.6836 189.413"/>
+	<text fill="fuchsia" transform="translate(75.6836 189.413)" font-size="12" font-family="Khmer Mondulkiri" x="-6.328125, " y="0.0234375, ">
+			0
+	</text>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M84.6836 133.436L80.6836 133.436"/>
+	<text fill="fuchsia" transform="translate(75.6836 133.436)" font-size="12" font-family="Khmer Mondulkiri" x="-35.15625, -28.828125, -25.3125, -18.984375, -12.65625, -6.328125, " y="0.0234375, ">
+			0.0002
+	</text>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M84.6836 346.15L82.6836 346.15"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M84.6836 334.954L82.6836 334.954"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M84.6836 323.759L82.6836 323.759"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M84.6836 312.563L82.6836 312.563"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M84.6836 290.172L82.6836 290.172"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M84.6836 278.977L82.6836 278.977"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M84.6836 267.781L82.6836 267.781"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M84.6836 256.586L82.6836 256.586"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M84.6836 234.195L82.6836 234.195"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M84.6836 223L82.6836 223"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M84.6836 211.804L82.6836 211.804"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M84.6836 200.609L82.6836 200.609"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M84.6836 178.218L82.6836 178.218"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M84.6836 167.022L82.6836 167.022"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M84.6836 155.827L82.6836 155.827"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M84.6836 144.631L82.6836 144.631"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M84.6836 122.24L82.6836 122.24"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M84.6836 111.045L82.6836 111.045"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M84.6836 99.8493L82.6836 99.8493"/>
+	<path fill="none" stroke="fuchsia" stroke-width="1" stroke-miterlimit="4" d="M84.6836 354.594L84.6836 99.375"/>
+	<text fill="#D7D7D7" transform="translate(566.52 39.375)" font-size="16" font-weight="600" font-family="Khmer Mondulkiri" x="-314.12891, -305.16016, -295.93359, -286.65234, -277.68359, -269.65234, -260.87891, -256.43359, -247.05859, -238.01953, -228.98828, -219.61328, -212.55078, -203.32422, -198.14453, -189.37109, -179.99609, -170.95703, -161.92578, -152.88672, -144.35547, -134.98047, -126.51172, -117.95703, -111.31641, -102.28516, -93.253906, -86.613281, -77.582031, -68.550781, -40.425781, -29.917969, -21.886719, -16.378906, -9.7382812, -0.98046875, 8.0507812, 12.738281, 21.769531, 30.800781, 40.175781, 50.683594, 59.519531, 68.800781, 75.441406, 84.472656, 93.503906, 98.191406, 107.22266, 116.25391, 144.37891, 154.88672, 163.12891, 171.69922, 179.94141, 185.12109, 191.94141, 198.58203, 207.62109, 216.65234, 225.68359, 234.71484, 242.91797, 251.38672, 260.41797, 269.44922, 278.48047, 287.51172, 296.54297, 306.09766, " y="-14.5625, ">
+			Sunday, 20 July 2025 18:00:00 Lat:90.00 Lon:00.00 Levels:2000-100000Pa
+	</text>
+	<rect fill="#00008B" transform="translate(362.19 94.375)" x="-34.674805" y="-56.40625" width="69.349609" height="61.40625"/>
+	<text fill="white" transform="translate(362.19 94.375)" font-size="14" font-weight="600" font-family="Khmer Mondulkiri" x="-29.674805, -19.461914, -8.3740234, 0.8203125, 11.675781, 18.887695, 24.855469, " y="-38.445312, ">
+			COLDest
+	</text>
+	<text fill="white" transform="translate(362.19 94.375)" font-size="14" font-weight="600" font-family="Khmer Mondulkiri" x="-27.234375, -19.325195, -11.860352, -3.9580078, 3.9443359, 11.84668, 20.207031, " y="-12.742188, ">
+			25000Pa
+	</text>
+	<rect fill="red" transform="translate(840.153 94.375)" x="-32.022461" y="-56.40625" width="64.044922" height="61.40625"/>
+	<text fill="white" transform="translate(840.153 94.375)" font-size="14" font-weight="600" font-family="Khmer Mondulkiri" x="-24.438477, -13.446289, -2.3583984, 6.4394531, 13.651367, 19.619141, " y="-38.445312, ">
+			HOTest
+	</text>
+	<text fill="white" transform="translate(840.153 94.375)" font-size="14" font-weight="600" font-family="Khmer Mondulkiri" x="-27.022461, -19.537109, -12.072266, -4.1699219, 3.7324219, 11.634766, 19.995117, " y="-12.742188, ">
+			85000Pa
+	</text>
+</svg>

@@ -6,4 +6,11 @@
 
 > License: "ScottPlot was created by Scott W Harden and enhanced by many contributions from the open-source community. It is provided under the permissive MIT license and is free to modify and use for any purpose".    
 
-> Free Edition licensing. "Our flagship products (ALGLIB for C++ and ALGLIB for C#) are distributed under GPL 2+ license, which is not suited for commercial distribution; other products are distributed under Personal and Academic Use License".
+> Free Edition licensing. "Our flagship products (ALGLIB for C++ and ALGLIB for C#) are distributed under GPL 2+ license, which is not suited for commercial distribution; other products are distributed under Personal and Academic Use License".     
+----------     
+     
+----------    
+
+![ucar](Graficos/ComDiffsV20250720P90P00.svg)   
+### [Data Origin Thredds Ucar Unidata](https://www.ucar.edu/terms-of-use/data)    
+### GFS Quarter Degree Analysis.
