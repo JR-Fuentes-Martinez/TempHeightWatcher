@@ -11,6 +11,7 @@
      
 ----------    
 
-![ucar](Graficos/ComDiffsV20250720P90P00.svg)   
 ### [Data Origin Thredds Ucar Unidata](https://www.ucar.edu/terms-of-use/data)    
 ### GFS Quarter Degree Analysis.
+![ucar](Graficos/ComDiffsV20250720P90P00.svg)   
+![ucar](Graficos/ComDiffsV20250720N90P00.svg)   
